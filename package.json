@@ -1,0 +1,81 @@
+{
+  "author": "virtualpatterns.com <code@virtualpatterns.com> (http://www.virtualpatterns.com)",
+  "ava": {
+    "failFast": true,
+    "files": [
+      "distributable/test/**/*.test.*"
+    ],
+    "nodeArguments": [
+      "--no-warnings",
+      "--unhandled-rejections=strict"
+    ],
+    "require": [
+      "@virtualpatterns/mablung-source-map-support/distributable/install.js"
+    ],
+    "verbose": true
+  },
+  "c8": {
+    "exclude": [
+      "distributable/test"
+    ],
+    "reporter": [
+      "lcov"
+    ]
+  },
+  "description": "TBD",
+  "license": "GPL-3.0+",
+  "main": "distributable/index.js",
+  "name": "@virtualpatterns/mablung-process",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/virtualpatterns/mablung-process"
+  },
+  "scripts": {
+    "upgrade:10": "npm-check-updates --upgrade",
+    "upgrade:20": "npm install",
+    "upgrade": "run-s --silent upgrade:*",
+    "refresh:10": "shx rm -f package-lock.json",
+    "refresh:20": "shx rm -Rf node_modules",
+    "refresh:30": "npm cache clean --force",
+    "refresh:40": "npm install",
+    "refresh": "run-s --silent refresh:*",
+    "clean:10": "shx rm -Rf coverage distributable process",
+    "clean": "run-s --silent clean:*",
+    "lint:10": "eslint --ignore-path .gitignore source",
+    "lint:20": "depcheck --ignores=\"ava,@babel/*,babel-*,eslint-*,@virtualpatterns/mablung-*\"",
+    "lint": "run-s --silent lint:*",
+    "build:10": "babel source --copy-files --extensions .cjs,.js --keep-file-extension --out-dir distributable --source-maps",
+    "build": "run-s --silent clean lint build:*",
+    "test:10": "ava reset-cache",
+    "test:parameter:10": "c8 ava",
+    "test": "run-s --silent build test:* \"test:parameter:* {1}\" --",
+    "push:10": "git add coverage distributable package-lock.json package.json",
+    "push:20": "git commit --message=\"post-test\"",
+    "push:40": "git push origin master",
+    "push:50": "npm version prerelease",
+    "push": "run-s --silent test push:*"
+  },
+  "type": "module",
+  "version": "0.0.1",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-syntax-import-meta": "^7.8.3",
+    "@babel/preset-env": "^7.9.0",
+    "@pwn/is": "^1.0.2",
+    "@virtualpatterns/mablung-babel-plugin-replace": "file:../mablung-babel-plugin-replace",
+    "@virtualpatterns/mablung-source-map-support": "file:../mablung-source-map-support",
+    "@virtualpatterns/mablung-worker": "file:../mablung-worker",
+    "ava": "^3.7.1",
+    "babel-eslint": "^10.1.0",
+    "c8": "^7.1.0",
+    "depcheck": "^0.9.2",
+    "eslint": "^6.8.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "fs-extra": "^9.0.0",
+    "npm-check-updates": "^4.1.0",
+    "npm-run-all": "^4.1.5",
+    "shx": "^0.3.2"
+  },
+  "dependencies": {}
+}

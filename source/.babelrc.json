@@ -1,0 +1,28 @@
+{
+  "plugins": [ 
+    "@babel/plugin-syntax-import-meta",
+    [
+      "@virtualpatterns/mablung-babel-plugin-replace",
+      {
+        "rule": [
+          {
+            "searchFor": "__require",
+            "replaceWith": "__importIdentifier(import.meta.url)",
+            "parserOption": { 
+              "plugins": [ "importMeta" ], 
+              "sourceType": "module" 
+            },
+            "addImport": [
+              {
+                "type": "named",
+                "name": "createRequire",
+                "source": "module"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  ],
+  "presets": []
+}

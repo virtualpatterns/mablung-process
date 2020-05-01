@@ -1,0 +1,1 @@
+{"version":3,"sources":["../source/index.js"],"names":[],"mappings":"AAAA,cAAc,sBAAd;AAEA,cAAc,2CAAd;AACA,cAAc,oDAAd","sourcesContent":["export * from './library/process.js'\n\nexport * from './library/error/process-argument-error.js'\nexport * from './library/error/process-duration-exceeded-error.js'\n"],"file":"index.js"}
