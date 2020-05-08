@@ -15,7 +15,7 @@ Test('Process.existsPidFile(path) when path exists and is valid', async (test) =
 
   let path = `${test.context.basePath}/exists-valid.pid`
 
-  await FileSystem.writeFile(path, process.pid, { 'encoding': 'utf-8' })
+  await FileSystem.writeFile(path, process.pid.toString(), { 'encoding': 'utf-8' })
 
   try {
     test.true(Process.existsPidFile(path))
@@ -34,7 +34,7 @@ Test('Process.existsPidFile(path) when path exists and is invalid', async (test)
 
   let path = `${test.context.basePath}/exists-invalid.pid`
 
-  await FileSystem.writeFile(path, 100000, { 'encoding': 'utf-8' })
+  await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
 
   test.false(Process.existsPidFile(path))
   await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), { 'code': 'ENOENT' })
@@ -50,7 +50,7 @@ Test('Process.existsPidFile(path) when using a worker', async (test) => {
 
     await worker.import(Require.resolve('./worker.js'))
 
-    await FileSystem.writeFile(path, worker.pid, { 'encoding': 'utf-8' })
+    await FileSystem.writeFile(path, worker.pid.toString(), { 'encoding': 'utf-8' })
 
     try {
       test.true(await worker.existsPidFile(path))

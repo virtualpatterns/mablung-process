@@ -16,7 +16,7 @@ Test.serial('Process.createPidFile(path) when path exists and is valid', async (
 
   let path = `${test.context.basePath}/exists-valid.pid`
 
-  await FileSystem.writeFile(path, process.pid, { 'encoding': 'utf-8' })
+  await FileSystem.writeFile(path, process.pid.toString(), { 'encoding': 'utf-8' })
 
   try {
     test.throws(Process.createPidFile.bind(Process, path), { 'instanceOf': ProcessArgumentError })
@@ -45,7 +45,7 @@ Test.serial('Process.createPidFile(path) when path exists and is invalid', async
 
   let path = `${test.context.basePath}/exists-invalid.pid`
 
-  await FileSystem.writeFile(path, 100000, { 'encoding': 'utf-8' })
+  await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
 
   Process.createPidFile(path)
 

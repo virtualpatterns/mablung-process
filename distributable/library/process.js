@@ -83,12 +83,12 @@ class Process {
     // 'handleUnhandledRejection': true, 
     'handleKillSignal': ['SIGINT', 'SIGTERM']
   }) {
-    if (Process._onExit) {
+    if (Process._pidPath) {
       throw new ProcessArgumentError('A pid file has already been created.');
     } else if (this.existsPidFile(path)) {
       throw new ProcessArgumentError(`The path '${Path.relative('', path)}' exists.`);
     } else {
-      FileSystem.writeFileSync(path, process.pid, {
+      FileSystem.writeFileSync(path, process.pid.toString(), {
         'encoding': 'utf-8'
       });
 

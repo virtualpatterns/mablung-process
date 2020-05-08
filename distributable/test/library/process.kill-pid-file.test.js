@@ -28,7 +28,7 @@ Test('Process.killPidFile(path) when path does not exist', test => {
 });
 Test('Process.killPidFile(path) when path exists and is invalid', async test => {
   let path = `${test.context.basePath}/exists-invalid.pid`;
-  await FileSystem.writeFile(path, 100000, {
+  await FileSystem.writeFile(path, '100000', {
     'encoding': 'utf-8'
   });
   await test.throws(Process.killPidFile.bind(Process, path), {

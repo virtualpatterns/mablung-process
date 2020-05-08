@@ -13,7 +13,7 @@ Test.before(async test => {
 });
 Test.serial('Process.createPidFile(path) when path exists and is valid', async test => {
   let path = `${test.context.basePath}/exists-valid.pid`;
-  await FileSystem.writeFile(path, process.pid, {
+  await FileSystem.writeFile(path, process.pid.toString(), {
     'encoding': 'utf-8'
   });
 
@@ -40,7 +40,7 @@ Test.serial('Process.createPidFile(path) when path does not exist', async test =
 });
 Test.serial('Process.createPidFile(path) when path exists and is invalid', async test => {
   let path = `${test.context.basePath}/exists-invalid.pid`;
-  await FileSystem.writeFile(path, 100000, {
+  await FileSystem.writeFile(path, '100000', {
     'encoding': 'utf-8'
   });
   Process.createPidFile(path);
