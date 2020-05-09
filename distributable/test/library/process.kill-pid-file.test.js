@@ -14,7 +14,7 @@ Test('Process.killPidFile(path) when path exists and is valid', async test => {
   let worker = new WorkerClient();
   let path = `${test.context.basePath}/exists-valid.pid`;
   await worker.import(Require.resolve('./worker.js'));
-  await worker.createPidFile(path);
+  await worker.module.createPidFile(path);
   Process.killPidFile(path);
   let maximumDuration = 2000;
   let pollInterval = maximumDuration / 8;

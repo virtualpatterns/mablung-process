@@ -80,13 +80,13 @@ Test.serial('Process.createPidFile(path) when using a worker', async (test) => {
   try {
 
     await worker.import(Require.resolve('./worker.js'))
-    await worker.createPidFile(path)
+    await worker.module.createPidFile(path)
 
     try {
       await test.notThrowsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK))
       test.is(parseInt(await FileSystem.readFile(path, { 'encoding': 'utf-8' })), worker.pid)
     } finally {
-      await worker.deletePidFile()
+      await worker.module.deletePidFile()
     }
 
   } finally {
@@ -102,7 +102,7 @@ Test.serial('Process.createPidFile(path) on exit', async (test) => {
 
   try {
     await worker.import(Require.resolve('./worker.js'))
-    await worker.createPidFile(path)
+    await worker.module.createPidFile(path)
   } finally {
     await worker.end()
   }
@@ -117,7 +117,7 @@ Test.serial('Process.createPidFile(path) on uncaught exception', async (test) =>
   let worker = new WorkerClient()
 
   await worker.import(Require.resolve('./worker.js'))
-  await worker.createPidFile(path)
+  await worker.module.createPidFile(path)
   await worker.uncaughtException()
 
   let maximumDuration = 2000

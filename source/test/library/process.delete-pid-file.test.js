@@ -58,8 +58,8 @@ Test.serial('Process.deletePidFile() when using a worker', async (test) => {
 
     await worker.import(Require.resolve('./worker.js'))
 
-    await worker.createPidFile(path)
-    await worker.deletePidFile()
+    await worker.module.createPidFile(path)
+    await worker.module.deletePidFile()
 
     await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), { 'code': 'ENOENT' })
   

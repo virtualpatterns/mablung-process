@@ -47,7 +47,7 @@ Test('Process.existsPidFile(path) when using a worker', async test => {
     });
 
     try {
-      test.true((await worker.existsPidFile(path)));
+      test.true(await worker.module.existsPidFile(path));
     } finally {
       await FileSystem.unlink(path);
     }

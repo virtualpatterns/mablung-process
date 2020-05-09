@@ -53,7 +53,7 @@ Test('Process.existsPidFile(path) when using a worker', async (test) => {
     await FileSystem.writeFile(path, worker.pid.toString(), { 'encoding': 'utf-8' })
 
     try {
-      test.true(await worker.existsPidFile(path))
+      test.true(await worker.module.existsPidFile(path))
     } finally {
       await FileSystem.unlink(path)
     }

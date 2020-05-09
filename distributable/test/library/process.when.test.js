@@ -5,12 +5,12 @@ Test.before(test => {
   test.context.pollInterval = test.context.maximumDuration / 4;
 });
 Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pollFn returns true', async test => {
-  test.truthy((await Process.when(test.context.maximumDuration, test.context.pollInterval, () => true)));
+  test.truthy(await Process.when(test.context.maximumDuration, test.context.pollInterval, () => true));
 });
 Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous pollFn returns true', async test => {
-  test.truthy((await Process.when(test.context.maximumDuration, test.context.pollInterval, () => {
+  test.truthy(await Process.when(test.context.maximumDuration, test.context.pollInterval, () => {
     return Promise.resolve(true);
-  })));
+  }));
 });
 Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pollFn returns false', async test => {
   await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => false), {

@@ -17,7 +17,7 @@ Test('Process.killPidFile(path) when path exists and is valid', async (test) => 
   let path = `${test.context.basePath}/exists-valid.pid`
 
   await worker.import(Require.resolve('./worker.js'))
-  await worker.createPidFile(path)
+  await worker.module.createPidFile(path)
 
   Process.killPidFile(path)
 
