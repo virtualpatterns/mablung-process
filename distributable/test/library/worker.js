@@ -8,4 +8,9 @@ export function createPidFile(...parameter) {
 export function deletePidFile() {
   return Process.deletePidFile();
 }
+export function throwUncaughtException() {
+  setImmediate(() => {
+    throw new Error('throwUncaughtException() { ... }');
+  });
+}
 //# sourceMappingURL=worker.js.map

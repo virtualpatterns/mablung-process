@@ -68,10 +68,9 @@ Test.serial('Process.createPidFile(path) when called twice', test => {
 });
 Test.serial('Process.createPidFile(path) when using a worker', async test => {
   let path = `${test.context.basePath}/worker.pid`;
-  let worker = new WorkerClient();
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   try {
-    await worker.import(Require.resolve('./worker.js'));
     await worker.module.createPidFile(path);
 
     try {
@@ -88,10 +87,9 @@ Test.serial('Process.createPidFile(path) when using a worker', async test => {
 });
 Test.serial('Process.createPidFile(path) on exit', async test => {
   let path = `${test.context.basePath}/on-exit.pid`;
-  let worker = new WorkerClient();
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   try {
-    await worker.import(Require.resolve('./worker.js'));
     await worker.module.createPidFile(path);
   } finally {
     await worker.end();
@@ -103,10 +101,9 @@ Test.serial('Process.createPidFile(path) on exit', async test => {
 });
 Test.serial('Process.createPidFile(path) on uncaught exception', async test => {
   let path = `${test.context.basePath}/on-uncaught-exception.pid`;
-  let worker = new WorkerClient();
-  await worker.import(Require.resolve('./worker.js'));
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
   await worker.module.createPidFile(path);
-  await worker.uncaughtException();
+  await worker.module.throwUncaughtException();
   let maximumDuration = 2000;
   let pollInterval = maximumDuration / 8;
   await test.notThrowsAsync(Process.when(maximumDuration, pollInterval, () => !Process.existsPidFile(path)));
