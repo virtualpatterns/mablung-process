@@ -40,10 +40,9 @@ Test.serial('Process.deletePidFile() when called twice', test => {
 });
 Test.serial('Process.deletePidFile() when using a worker', async test => {
   let path = `${test.context.basePath}/worker.pid`;
-  let worker = new WorkerClient();
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   try {
-    await worker.import(Require.resolve('./worker.js'));
     await worker.module.createPidFile(path);
     await worker.module.deletePidFile();
     await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), {
