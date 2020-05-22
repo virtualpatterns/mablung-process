@@ -38,10 +38,9 @@ Test('Process.existsPidFile(path) when path exists and is invalid', async test =
 });
 Test('Process.existsPidFile(path) when using a worker', async test => {
   let path = `${test.context.basePath}/worker.pid`;
-  let worker = new WorkerClient();
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   try {
-    await worker.import(Require.resolve('./worker.js'));
     await FileSystem.writeFile(path, worker.pid.toString(), {
       'encoding': 'utf-8'
     });
