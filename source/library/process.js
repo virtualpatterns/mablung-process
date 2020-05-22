@@ -127,8 +127,8 @@ class Process {
 
     if (option.handleExit) {
 
-      Process.on('exit', Process._onExit = (code) => {
-        console.log(`Process.on('exit', Process._onExit = (${code}) => { ... })`)
+      Process.on('exit', Process.__onExit = (code) => {
+        console.log(`Process.on('exit', Process.__onExit = (${code}) => { ... })`)
         
         try {
           Process.deletePidFile()
@@ -143,8 +143,8 @@ class Process {
 
     // if (option.handleUncaughtException) {
 
-    //   Process.on('uncaughtException', Process._onUncaughtException = (error, origin) => {
-    //     console.log(`Process.on('uncaughtException', Process._onUncaughtException = (error, '${origin}') => { ... })`)
+    //   Process.on('uncaughtException', Process.__onUncaughtException = (error, origin) => {
+    //     console.log(`Process.on('uncaughtException', Process.__onUncaughtException = (error, '${origin}') => { ... })`)
     //     console.error(error)
         
     //     try {
@@ -162,8 +162,8 @@ class Process {
   
     // if (option.handleUnhandledRejection) {
 
-    //   Process.on('unhandledRejection', Process._onUnhandledRejection = (error) => {
-    //     console.log('Process.on(\'unhandledRejection\', Process._onUnhandledRejection = (error) => { ... })')
+    //   Process.on('unhandledRejection', Process.__onUnhandledRejection = (error) => {
+    //     console.log('Process.on(\'unhandledRejection\', Process.__onUnhandledRejection = (error) => { ... })')
     //     console.error(error)
         
     //     try {
@@ -182,8 +182,8 @@ class Process {
     if (option.handleKillSignal) {
 
       option.handleKillSignal.forEach((signal) => {
-        Process.on(signal, Process[`_on${signal}`] = () => {
-          console.log(`Process.on('${signal}', Process._on${signal} = () => { ... })`)
+        Process.on(signal, Process[`__on${signal}`] = () => {
+          console.log(`Process.on('${signal}', Process.__on${signal} = () => { ... })`)
         
           try {
             Process.deletePidFile()
@@ -240,29 +240,29 @@ class Process {
     if (option.handleKillSignal) {
 
       option.handleKillSignal.forEach((signal) => {
-        if (Process[`_on${signal}`]) {
-          Process.off(signal, Process[`_on${signal}`])
-          delete Process[`_on${signal}`]
+        if (Process[`__on${signal}`]) {
+          Process.off(signal, Process[`__on${signal}`])
+          delete Process[`__on${signal}`]
         }
       })
   
     }
 
-    // if (Process._onUnhandledRejection) {
-    //   Process.off('unhandledRejection', Process._onUnhandledRejection)
-    //   delete Process._onUnhandledRejection
+    // if (Process.__onUnhandledRejection) {
+    //   Process.off('unhandledRejection', Process.__onUnhandledRejection)
+    //   delete Process.__onUnhandledRejection
     // }
 
-    // if (Process._onUncaughtException) {
-    //   Process.off('uncaughtException', Process._onUncaughtException)
-    //   delete Process._onUncaughtException
+    // if (Process.__onUncaughtException) {
+    //   Process.off('uncaughtException', Process.__onUncaughtException)
+    //   delete Process.__onUncaughtException
     // }
 
     if (option.handleExit) {
 
-      if (Process._onExit) {
-        Process.off('exit', Process._onExit)
-        delete Process._onExit
+      if (Process.__onExit) {
+        Process.off('exit', Process.__onExit)
+        delete Process.__onExit
       }
   
     }
