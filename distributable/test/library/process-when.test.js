@@ -40,4 +40,4 @@ Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous p
     'instanceOf': Error
   });
 });
-//# sourceMappingURL=process.when.test.js.map
+//# sourceMappingURL=process-when.test.js.map

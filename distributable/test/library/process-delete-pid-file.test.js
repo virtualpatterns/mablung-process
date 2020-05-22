@@ -52,4 +52,4 @@ Test.serial('Process.deletePidFile() when using a worker', async test => {
     await worker.end();
   }
 });
-//# sourceMappingURL=process.delete-pid-file.test.js.map
+//# sourceMappingURL=process-delete-pid-file.test.js.map

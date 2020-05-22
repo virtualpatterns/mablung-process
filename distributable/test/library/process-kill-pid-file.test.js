@@ -11,9 +11,8 @@ Test.before(async test => {
   await FileSystem.ensureDir(test.context.basePath);
 });
 Test('Process.killPidFile(path) when path exists and is valid', async test => {
-  let worker = new WorkerClient();
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
   let path = `${test.context.basePath}/exists-valid.pid`;
-  await worker.import(Require.resolve('./worker.js'));
   await worker.module.createPidFile(path);
   Process.killPidFile(path);
   let maximumDuration = 2000;
@@ -36,4 +35,4 @@ Test('Process.killPidFile(path) when path exists and is invalid', async test => 
   });
   test.false(Process.existsPidFile(path));
 });
-//# sourceMappingURL=process.kill-pid-file.test.js.map
+//# sourceMappingURL=process-kill-pid-file.test.js.map

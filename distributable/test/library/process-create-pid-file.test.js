@@ -108,4 +108,4 @@ Test.serial('Process.createPidFile(path) on uncaught exception', async test => {
   let pollInterval = maximumDuration / 8;
   await test.notThrowsAsync(Process.when(maximumDuration, pollInterval, () => !Process.existsPidFile(path)));
 });
-//# sourceMappingURL=process.create-pid-file.test.js.map
+//# sourceMappingURL=process-create-pid-file.test.js.map

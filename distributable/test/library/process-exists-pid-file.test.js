@@ -54,4 +54,4 @@ Test('Process.existsPidFile(path) when using a worker', async test => {
     await worker.end();
   }
 });
-//# sourceMappingURL=process.exists-pid-file.test.js.map
+//# sourceMappingURL=process-exists-pid-file.test.js.map
