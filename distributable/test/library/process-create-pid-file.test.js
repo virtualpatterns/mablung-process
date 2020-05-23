@@ -82,7 +82,7 @@ Test.serial('Process.createPidFile(path) when using a worker', async test => {
       await worker.module.deletePidFile();
     }
   } finally {
-    await worker.end();
+    await worker.exit();
   }
 });
 Test.serial('Process.createPidFile(path) on exit', async test => {
@@ -92,7 +92,7 @@ Test.serial('Process.createPidFile(path) on exit', async test => {
   try {
     await worker.module.createPidFile(path);
   } finally {
-    await worker.end();
+    await worker.exit();
   }
 
   await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), {

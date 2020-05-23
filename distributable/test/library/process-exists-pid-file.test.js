@@ -51,7 +51,7 @@ Test('Process.existsPidFile(path) when using a worker', async test => {
       await FileSystem.unlink(path);
     }
   } finally {
-    await worker.end();
+    await worker.exit();
   }
 });
 //# sourceMappingURL=process-exists-pid-file.test.js.map

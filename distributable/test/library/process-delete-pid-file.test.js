@@ -49,7 +49,7 @@ Test.serial('Process.deletePidFile() when using a worker', async test => {
       'code': 'ENOENT'
     });
   } finally {
-    await worker.end();
+    await worker.exit();
   }
 });
 //# sourceMappingURL=process-delete-pid-file.test.js.map
