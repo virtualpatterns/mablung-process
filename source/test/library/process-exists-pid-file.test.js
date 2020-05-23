@@ -57,7 +57,7 @@ Test('Process.existsPidFile(path) when using a worker', async (test) => {
     }
   
   } finally {
-    await worker.end()
+    await worker.exit()
   }
 
 })

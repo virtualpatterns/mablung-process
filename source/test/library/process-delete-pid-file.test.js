@@ -62,7 +62,7 @@ Test.serial('Process.deletePidFile() when using a worker', async (test) => {
     await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), { 'code': 'ENOENT' })
   
   } finally {
-    await worker.end()
+    await worker.exit()
   }
 
 })
