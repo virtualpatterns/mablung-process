@@ -10,7 +10,7 @@
       "--unhandled-rejections=strict"
     ],
     "require": [
-      "@virtualpatterns/mablung-source-map-support/distributable/install.js"
+      "@virtualpatterns/mablung-source-map-support/install.js"
     ],
     "verbose": true
   },
@@ -23,8 +23,8 @@
     ]
   },
   "description": "TBD",
+  "exports": "./distributable/index.js",
   "license": "GPL-3.0+",
-  "main": "distributable/index.js",
   "name": "@virtualpatterns/mablung-process",
   "repository": {
     "type": "git",
