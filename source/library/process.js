@@ -1,9 +1,10 @@
 import FileSystem from 'fs'
-import Is from '@pwn/is'
+import { Is } from '@virtualpatterns/mablung-is'
 import Path from 'path'
 
 import { ProcessArgumentError } from './error/process-argument-error.js'
 import { ProcessDurationExceededError } from './error/process-duration-exceeded-error.js'
+import { ProcessFeatureNotSupportedError } from './error/process-feature-not-supported-error.js'
 
 class Process {
 
@@ -101,9 +102,7 @@ class Process {
   
   static createPidFile(path, option = { 
     'handleExit': true,
-    // 'handleUncaughtException': true, 
-    // 'handleUnhandledRejection': true, 
-    'handleKillSignal': [ 'SIGINT', 'SIGTERM' ]
+    'handleKillSignal': Is.windows() ? false : [ 'SIGINT', 'SIGTERM' ]
   }) {
 
     if (Process._pidPath) {
@@ -114,10 +113,21 @@ class Process {
   
       FileSystem.writeFileSync(path, process.pid.toString(), { 'encoding': 'utf-8' })
 
-      Process._attach(option)
+      try {
+
+        Process._attach(option)
     
-      Process._pidPath = path
-      Process._pidOption = option
+        Process._pidPath = path
+        Process._pidOption = option
+  
+      } catch (error) {
+
+        FileSystem.accessSync(path, FileSystem.F_OK)
+        FileSystem.unlinkSync(path)
+  
+        throw error
+
+      }
 
     }
   
@@ -125,77 +135,52 @@ class Process {
 
   static _attach(option) {
 
-    if (option.handleExit) {
+    try {
 
-      Process.on('exit', Process.__onExit = (code) => {
-        console.log(`Process.on('exit', Process.__onExit = (${code}) => { ... })`)
-        
-        try {
-          Process.deletePidFile()
-          /* c8 ignore next 3 */
-        } catch (error) {
-          console.error(error)
-        }
-  
-      })
-  
-    }
+      if (option.handleExit) {
 
-    // if (option.handleUncaughtException) {
-
-    //   Process.on('uncaughtException', Process.__onUncaughtException = (error, origin) => {
-    //     console.log(`Process.on('uncaughtException', Process.__onUncaughtException = (error, '${origin}') => { ... })`)
-    //     console.error(error)
-        
-    //     try {
-    //       Process.deletePidFile()
-    //       /* c8 ignore next 3 */
-    //     } catch (error) {
-    //       console.error(error)
-    //     }
-  
-    //     this._exitOnListenerCount('uncaughtException')
-  
-    //   })
-
-    // }
-  
-    // if (option.handleUnhandledRejection) {
-
-    //   Process.on('unhandledRejection', Process.__onUnhandledRejection = (error) => {
-    //     console.log('Process.on(\'unhandledRejection\', Process.__onUnhandledRejection = (error) => { ... })')
-    //     console.error(error)
-        
-    //     try {
-    //       Process.deletePidFile()
-    //       /* c8 ignore next 3 */
-    //     } catch (error) {
-    //       console.error(error)
-    //     }
-  
-    //     this._exitOnListenerCount('unhandledRejection')
-  
-    //   })
-    
-    // }
-
-    if (option.handleKillSignal) {
-
-      option.handleKillSignal.forEach((signal) => {
-        Process.on(signal, Process[`__on${signal}`] = () => {
-          console.log(`Process.on('${signal}', Process.__on${signal} = () => { ... })`)
-        
+        Process.on('exit', Process.__onExit = (code) => {
+          console.log(`Process.on('exit', Process.__onExit = (${code}) => { ... })`)
+          
           try {
             Process.deletePidFile()
-            this._exit(signal)
             /* c8 ignore next 3 */
           } catch (error) {
             console.error(error)
           }
-  
+    
         })
-      })
+    
+      }
   
+      if (option.handleKillSignal) {
+  
+        if (Is.windows()) {
+          throw new ProcessFeatureNotSupportedError('The option \'handleKillSignal\' is not supported on this platform.')
+        } else {
+        
+          option.handleKillSignal.forEach((signal) => {
+            Process.on(signal, Process[`__on${signal}`] = () => {
+              console.log(`Process.on('${signal}', Process.__on${signal} = () => { ... })`)
+            
+              try {
+                Process.deletePidFile()
+                this._exit(signal)
+                /* c8 ignore next 3 */
+              } catch (error) {
+                console.error(error)
+              }
+      
+            })
+          })
+    
+        }
+    
+      }
+
+    } catch (error) {
+      this._detach(option)
+      throw error
     }
 
   }
@@ -247,16 +232,6 @@ class Process {
       })
   
     }
-
-    // if (Process.__onUnhandledRejection) {
-    //   Process.off('unhandledRejection', Process.__onUnhandledRejection)
-    //   delete Process.__onUnhandledRejection
-    // }
-
-    // if (Process.__onUncaughtException) {
-    //   Process.off('uncaughtException', Process.__onUncaughtException)
-    //   delete Process.__onUncaughtException
-    // }
 
     if (option.handleExit) {
 

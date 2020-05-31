@@ -10,8 +10,8 @@
       "name": "Launch ...",
       "autoAttachChildProcesses": false,
       "internalConsoleOptions": "openOnSessionStart",
-      "preLaunchTask": "build",
-      "program": "${workspaceFolder}/distributable/sandbox/main.js",
+      // "preLaunchTask": "build",
+      "program": "${workspaceFolder}/distributable/sandbox/w.js",
       "runtimeArgs": []
     },
     {
@@ -21,7 +21,7 @@
       "internalConsoleOptions": "openOnSessionStart",
       "outputCapture": "std",
       "port": 9229,
-      "preLaunchTask": "build",
+      // "preLaunchTask": "build",
       "runtimeArgs": [
         "debug",
         "--break",

@@ -1,7 +1,8 @@
 import FileSystem from 'fs-extra'
-// import { LoggedClient } from '@virtualpatterns/mablung-worker/distributable/library/worker-client/logged-client.js'
+import { Is } from '@virtualpatterns/mablung-is'
 import Test from 'ava'
 import { WorkerClient } from '@virtualpatterns/mablung-worker'
+import { LoggedClient } from '@virtualpatterns/mablung-worker/logged-client.js'
 
 import { Process, ProcessArgumentError } from '../../index.js'
 
@@ -33,7 +34,7 @@ Test.serial('Process.createPidFile(path) when path does not exist', async (test)
   Process.createPidFile(path)
 
   try {
-    await test.notThrowsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK))
+    test.true(await FileSystem.pathExists(path))
     test.is(parseInt(await FileSystem.readFile(path, { 'encoding': 'utf-8' })), process.pid)
   } finally {
     Process.deletePidFile()
@@ -50,7 +51,7 @@ Test.serial('Process.createPidFile(path) when path exists and is invalid', async
   Process.createPidFile(path)
 
   try {
-    await test.notThrowsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK))
+    test.true(await FileSystem.pathExists(path))
     test.is(parseInt(await FileSystem.readFile(path, { 'encoding': 'utf-8' })), process.pid)
   } finally {
     Process.deletePidFile()
@@ -82,7 +83,7 @@ Test.serial('Process.createPidFile(path) when using a worker', async (test) => {
     await worker.module.createPidFile(path)
 
     try {
-      await test.notThrowsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK))
+      test.true(await FileSystem.pathExists(path))
       test.is(parseInt(await FileSystem.readFile(path, { 'encoding': 'utf-8' })), worker.pid)
     } finally {
       await worker.module.deletePidFile()
@@ -100,26 +101,83 @@ Test.serial('Process.createPidFile(path) on exit', async (test) => {
   let worker = new WorkerClient(Require.resolve('./worker.js'))
 
   try {
-    await worker.module.createPidFile(path)
+    await worker.module.createPidFile(path, { 'handleExit': true, 'handleKillSignal': false })
   } finally {
     await worker.exit()
   }
 
-  await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), { 'code': 'ENOENT' })
+  test.false(await FileSystem.pathExists(path))
 
 })
 
 Test.serial('Process.createPidFile(path) on uncaught exception', async (test) => {
 
   let path = `${test.context.basePath}/on-uncaught-exception.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  let worker = new LoggedClient(Require.resolve('./worker.js'))
 
-  await worker.module.createPidFile(path)
-  await worker.module.throwUncaughtException()
+  try {
+    await worker.module.createPidFile(path, { 'handleExit': true, 'handleKillSignal': false })
+  } finally {
+    await worker.module.throwUncaughtException()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
 
-  let maximumDuration = 2000
-  let pollInterval = maximumDuration / 8
+  test.false(await FileSystem.pathExists(path))
 
-  await test.notThrowsAsync(Process.when(maximumDuration, pollInterval, () => !Process.existsPidFile(path)))
+})
+
+Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessFeatureNotSupportedError', async (test) => {
+
+  let path = `${test.context.basePath}/on-sigint.pid`
+  let worker = new LoggedClient(Require.resolve('./worker.js'))
+
+  if (Is.windows()) {
+
+    try {
+      await test.throwsAsync(worker.module.createPidFile(path, { 'handleExit': true, 'handleKillSignal': [ 'SIGINT' ] }), { 'instanceOf': Error })
+    } finally {
+      await worker.exit()
+    }
+    
+  } else {
+
+    try {
+      await worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': [ 'SIGINT' ] })
+    } finally {
+      Process.killPidFile(path, 'SIGINT')
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+
+  }
+
+  test.false(await FileSystem.pathExists(path))
+
+})
+
+Test.serial('Process.createPidFile(path) on SIGTERM optionally throws ProcessFeatureNotSupportedError', async (test) => {
+
+  let path = `${test.context.basePath}/on-sigterm.pid`
+  let worker = new LoggedClient(Require.resolve('./worker.js'))
+
+  if (Is.windows()) {
+
+    try {
+      await test.throwsAsync(worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': [ 'SIGTERM' ] }), { 'instanceOf': Error })
+    } finally {
+      await worker.exit()
+    }
+    
+  } else {
+
+    try {
+      await worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': [ 'SIGTERM' ] })
+    } finally {
+      Process.killPidFile(path, 'SIGTERM')
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+
+  }
+
+  test.false(await FileSystem.pathExists(path))
 
 })
