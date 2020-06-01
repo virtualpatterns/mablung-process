@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.85% </span>
+                <span class="strong">95.8% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>254/265</span>
+                <span class='fraction'>251/262</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.85% </span>
+                <span class="strong">95.8% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>254/265</span>
+                <span class='fraction'>251/262</span>
             </div>
         
             
@@ -319,10 +319,7 @@
 <a name='L260'></a><a href='#L260'>260</a>
 <a name='L261'></a><a href='#L261'>261</a>
 <a name='L262'></a><a href='#L262'>262</a>
-<a name='L263'></a><a href='#L263'>263</a>
-<a name='L264'></a><a href='#L264'>264</a>
-<a name='L265'></a><a href='#L265'>265</a>
-<a name='L266'></a><a href='#L266'>266</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L263'></a><a href='#L263'>263</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -425,9 +422,6 @@
 <span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-yes">15x</span>
@@ -593,7 +587,7 @@ import Path from 'path'
 &nbsp;
 import { ProcessArgumentError } from './error/process-argument-error.js'
 import { ProcessDurationExceededError } from './error/process-duration-exceeded-error.js'
-import { ProcessFeatureNotSupportedError } from './error/process-feature-not-supported-error.js'
+import { ProcessOptionNotSupportedError } from './error/process-option-not-supported-error.js'
 &nbsp;
 class Process {
 &nbsp;
@@ -689,10 +683,7 @@ class Process {
   
   }
   
-  static createPidFile(path, option = { 
-    'handleExit': true,
-    'handleKillSignal': <span class="branch-0 cbranch-no" title="branch not covered" >Is.windows() ? false : [</span> 'SIGINT', 'SIGTERM' ]
-  }) {
+  static createPidFile(path, { handleExit = true, handleKillSignal = <span class="branch-0 cbranch-no" title="branch not covered" >Is.windows() ? false : [</span> 'SIGINT', 'SIGTERM' ] } = {}) {
 &nbsp;
     if (Process._pidPath) {
       throw new ProcessArgumentError('A pid file has already been created.')
@@ -704,10 +695,10 @@ class Process {
 &nbsp;
       try {
 &nbsp;
-        Process._attach(option)
+        Process._attach({ handleExit, handleKillSignal })
     
         Process._pidPath = path
-        Process._pidOption = option
+        Process._pidOption = { handleExit, handleKillSignal }
   
       } <span class="branch-0 cbranch-no" title="branch not covered" >catch (error) {</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -722,11 +713,11 @@ class Process {
   
   }
 &nbsp;
-  static _attach(option) {
+  static _attach({ handleExit, handleKillSignal }) {
 &nbsp;
     try {
 &nbsp;
-      if (option.handleExit) {
+      if (handleExit) {
 &nbsp;
         Process.on('exit', Process.__onExit = (code) =&gt; {
           console.log(`Process.on('exit', Process.__onExit = (${code}) =&gt; { ... })`)
@@ -742,13 +733,13 @@ class Process {
     
       }
   
-      if (option.handleKillSignal) {
+      if (handleKillSignal) {
   
         if (Is.windows()) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >          throw new ProcessFeatureNotSupportedError('The option \'handleKillSignal\' is not supported on this platform.')</span>
+<span class="cstat-no" title="statement not covered" >          throw new ProcessOptionNotSupportedError('handleKillSignal')</span>
         } else {
         
-          option.handleKillSignal.forEach((signal) =&gt; {
+          handleKillSignal.forEach((signal) =&gt; {
             Process.on(signal, Process[`__on${signal}`] = () =&gt; {
               console.log(`Process.on('${signal}', Process.__on${signal} = () =&gt; { ... })`)
             
@@ -768,7 +759,7 @@ class Process {
       }
 &nbsp;
     } <span class="branch-0 cbranch-no" title="branch not covered" >catch (error) {</span>
-<span class="cstat-no" title="statement not covered" >      this._detach(option)</span>
+<span class="cstat-no" title="statement not covered" >      this._detach({ handleExit, handleKillSignal })</span>
 <span class="cstat-no" title="statement not covered" >      throw error</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
@@ -809,11 +800,11 @@ class Process {
   
   }
 &nbsp;
-  static _detach(option) {
+  static _detach({ handleExit, handleKillSignal }) {
 &nbsp;
-    if (option.handleKillSignal) {
+    if (handleKillSignal) {
 &nbsp;
-      option.handleKillSignal.forEach((signal) =&gt; {
+      handleKillSignal.forEach((signal) =&gt; {
         if (Process[`__on${signal}`]) {
           Process.off(signal, Process[`__on${signal}`])
           delete Process[`__on${signal}`]
@@ -822,7 +813,7 @@ class Process {
   
     }
 &nbsp;
-    if (option.handleExit) {
+    if (handleExit) {
 &nbsp;
       if (Process.__onExit) {
         Process.off('exit', Process.__onExit)
@@ -859,7 +850,7 @@ export { Process }
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sun May 31 2020 01:13:32 GMT-0400 (Eastern Daylight Time)
+                at Sun May 31 2020 22:48:56 GMT-0400 (Eastern Daylight Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

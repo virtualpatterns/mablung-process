@@ -3,7 +3,7 @@ import { Is } from '@virtualpatterns/mablung-is';
 import Path from 'path';
 import { ProcessArgumentError } from './error/process-argument-error.js';
 import { ProcessDurationExceededError } from './error/process-duration-exceeded-error.js';
-import { ProcessFeatureNotSupportedError } from './error/process-feature-not-supported-error.js';
+import { ProcessOptionNotSupportedError } from './error/process-option-not-supported-error.js';
 
 class Process {
   static wait(duration) {
@@ -78,10 +78,10 @@ class Process {
     return true;
   }
 
-  static createPidFile(path, option = {
-    'handleExit': true,
-    'handleKillSignal': Is.windows() ? false : ['SIGINT', 'SIGTERM']
-  }) {
+  static createPidFile(path, {
+    handleExit = true,
+    handleKillSignal = Is.windows() ? false : ['SIGINT', 'SIGTERM']
+  } = {}) {
     if (Process._pidPath) {
       throw new ProcessArgumentError('A pid file has already been created.');
     } else if (this.existsPidFile(path)) {
@@ -92,10 +92,16 @@ class Process {
       });
 
       try {
-        Process._attach(option);
+        Process._attach({
+          handleExit,
+          handleKillSignal
+        });
 
         Process._pidPath = path;
-        Process._pidOption = option;
+        Process._pidOption = {
+          handleExit,
+          handleKillSignal
+        };
       } catch (error) {
         FileSystem.accessSync(path, FileSystem.F_OK);
         FileSystem.unlinkSync(path);
@@ -104,9 +110,12 @@ class Process {
     }
   }
 
-  static _attach(option) {
+  static _attach({
+    handleExit,
+    handleKillSignal
+  }) {
     try {
-      if (option.handleExit) {
+      if (handleExit) {
         Process.on('exit', Process.__onExit = code => {
           console.log(`Process.on('exit', Process.__onExit = (${code}) => { ... })`);
 
@@ -119,11 +128,11 @@ class Process {
         });
       }
 
-      if (option.handleKillSignal) {
+      if (handleKillSignal) {
         if (Is.windows()) {
-          throw new ProcessFeatureNotSupportedError('The option \'handleKillSignal\' is not supported on this platform.');
+          throw new ProcessOptionNotSupportedError('handleKillSignal');
         } else {
-          option.handleKillSignal.forEach(signal => {
+          handleKillSignal.forEach(signal => {
             Process.on(signal, Process[`__on${signal}`] = () => {
               console.log(`Process.on('${signal}', Process.__on${signal} = () => { ... })`);
 
@@ -141,7 +150,10 @@ class Process {
         }
       }
     } catch (error) {
-      this._detach(option);
+      this._detach({
+        handleExit,
+        handleKillSignal
+      });
 
       throw error;
     }
@@ -175,9 +187,12 @@ class Process {
     }
   }
 
-  static _detach(option) {
-    if (option.handleKillSignal) {
-      option.handleKillSignal.forEach(signal => {
+  static _detach({
+    handleExit,
+    handleKillSignal
+  }) {
+    if (handleKillSignal) {
+      handleKillSignal.forEach(signal => {
         if (Process[`__on${signal}`]) {
           Process.off(signal, Process[`__on${signal}`]);
           delete Process[`__on${signal}`];
@@ -185,7 +200,7 @@ class Process {
       });
     }
 
-    if (option.handleExit) {
+    if (handleExit) {
       if (Process.__onExit) {
         Process.off('exit', Process.__onExit);
         delete Process.__onExit;

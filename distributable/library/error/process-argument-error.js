@@ -1,4 +1,6 @@
-class ProcessArgumentError extends Error {
+import { ProcessError } from './process-error.js';
+
+class ProcessArgumentError extends ProcessError {
   constructor(...parameter) {
     super(...parameter);
   }
