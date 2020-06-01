@@ -1,8 +1,8 @@
 import { createRequire as _createRequire } from "module";
 import FileSystem from 'fs-extra';
 import Test from 'ava';
-import { WorkerClient } from '@virtualpatterns/mablung-worker';
-import { LoggedClient } from '@virtualpatterns/mablung-worker/logged-client.js';
+import { WorkerClient } from '@virtualpatterns/mablung-worker'; // import { LoggedClient } from '@virtualpatterns/mablung-worker/logged-client.js'
+
 import { Process, ProcessArgumentError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
