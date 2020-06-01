@@ -126,7 +126,7 @@ Test.serial('Process.createPidFile(path) on uncaught exception', async (test) =>
 
 })
 
-Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessFeatureNotSupportedError', async (test) => {
+Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessOptionNotSupportedError', async (test) => {
 
   let path = `${test.context.basePath}/on-sigint.pid`
   let worker = new LoggedClient(Require.resolve('./worker.js'))
@@ -154,7 +154,7 @@ Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessFeat
 
 })
 
-Test.serial('Process.createPidFile(path) on SIGTERM optionally throws ProcessFeatureNotSupportedError', async (test) => {
+Test.serial('Process.createPidFile(path) on SIGTERM optionally throws ProcessOptionNotSupportedError', async (test) => {
 
   let path = `${test.context.basePath}/on-sigterm.pid`
   let worker = new LoggedClient(Require.resolve('./worker.js'))
