@@ -32,7 +32,8 @@
   },
   "scripts": {
     "upgrade:10": "npm-check-updates --upgrade",
-    "upgrade:20": "npm install",
+    "upgrade:20": "shx rm -f package-lock.json",
+    "upgrade:30": "npm install",
     "upgrade": "run-s --silent upgrade:*",
     "refresh:10": "shx rm -f package-lock.json",
     "refresh:20": "shx rm -Rf node_modules",
@@ -60,9 +61,9 @@
   "version": "0.0.2-10",
   "devDependencies": {
     "@babel/cli": "^7.10.1",
-    "@babel/core": "^7.10.1",
+    "@babel/core": "^7.10.2",
     "@babel/plugin-syntax-import-meta": "^7.10.1",
-    "@babel/preset-env": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
     "@virtualpatterns/mablung-babel-plugin-replace": "file:../mablung-babel-plugin-replace",
     "@virtualpatterns/mablung-source-map-support": "file:../mablung-source-map-support",
     "@virtualpatterns/mablung-worker": "file:../mablung-worker",
