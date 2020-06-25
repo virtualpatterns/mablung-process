@@ -3,7 +3,6 @@ import FileSystem from 'fs-extra';
 import { Is } from '@virtualpatterns/mablung-is';
 import Test from 'ava';
 import { WorkerClient } from '@virtualpatterns/mablung-worker';
-import { LoggedClient } from '@virtualpatterns/mablung-worker/logged-client.js';
 import { Process, ProcessArgumentError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
@@ -103,7 +102,7 @@ Test.serial('Process.createPidFile(path) on exit', async test => {
 });
 Test.serial('Process.createPidFile(path) on uncaught exception', async test => {
   let path = `${test.context.basePath}/on-uncaught-exception.pid`;
-  let worker = new LoggedClient(Require.resolve('./worker.js'));
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   try {
     await worker.module.createPidFile(path, {
@@ -119,7 +118,7 @@ Test.serial('Process.createPidFile(path) on uncaught exception', async test => {
 });
 Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessOptionNotSupportedError', async test => {
   let path = `${test.context.basePath}/on-sigint.pid`;
-  let worker = new LoggedClient(Require.resolve('./worker.js'));
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   if (Is.windows()) {
     try {
@@ -148,7 +147,7 @@ Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessOpti
 });
 Test.serial('Process.createPidFile(path) on SIGTERM optionally throws ProcessOptionNotSupportedError', async test => {
   let path = `${test.context.basePath}/on-sigterm.pid`;
-  let worker = new LoggedClient(Require.resolve('./worker.js'));
+  let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   if (Is.windows()) {
     try {
