@@ -7,9 +7,8 @@ import { Process, PidFileNotExistsProcessError } from '../../index.js'
 
 const Require = __require
 
-Test.before(async (test) => {
+Test.before((test) => {
   test.context.basePath = 'process/pid/kill-pid-file'
-  await FileSystem.ensureDir(test.context.basePath)
 })
 
 Test('Process.killPidFile(path) when path exists and is valid', async (test) => {
@@ -36,6 +35,8 @@ Test('Process.killPidFile(path) when path does not exist', (test) => {
 Test('Process.killPidFile(path) when path exists and is invalid', async (test) => {
 
   let path = `${test.context.basePath}/exists-invalid.pid`
+  
+  await FileSystem.ensureDir(test.context.basePath)
   await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
 
   await test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': PidFileNotExistsProcessError })

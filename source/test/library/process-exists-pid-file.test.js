@@ -6,15 +6,15 @@ import { Process } from '../../index.js'
 
 const Require = __require
 
-Test.before(async (test) => {
+Test.before((test) => {
   test.context.basePath = 'process/pid/exists-pid-file'
-  await FileSystem.ensureDir(test.context.basePath)
 })
 
 Test('Process.existsPidFile(path) when path exists and is valid', async (test) => {
 
   let path = `${test.context.basePath}/exists-valid.pid`
 
+  await FileSystem.ensureDir(test.context.basePath)
   await FileSystem.writeFile(path, process.pid.toString(), { 'encoding': 'utf-8' })
 
   try {
@@ -34,6 +34,7 @@ Test('Process.existsPidFile(path) when path exists and is invalid', async (test)
 
   let path = `${test.context.basePath}/exists-invalid.pid`
 
+  await FileSystem.ensureDir(test.context.basePath)
   await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
 
   test.false(Process.existsPidFile(path))
@@ -48,6 +49,7 @@ Test('Process.existsPidFile(path) when using a worker', async (test) => {
 
   try {
 
+    await FileSystem.ensureDir(test.context.basePath)
     await FileSystem.writeFile(path, worker.pid.toString(), { 'encoding': 'utf-8' })
 
     try {
