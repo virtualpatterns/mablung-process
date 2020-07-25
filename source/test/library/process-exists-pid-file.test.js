@@ -37,7 +37,7 @@ Test('Process.existsPidFile(path) when path exists and is invalid', async (test)
   await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
 
   test.false(Process.existsPidFile(path))
-  await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), { 'code': 'ENOENT' })
+  test.false(await FileSystem.pathExists(path))
 
 })
 

@@ -1,6 +1,6 @@
 import Test from 'ava'
 
-import { Process, ProcessDurationExceededError } from '../../index.js'
+import { Process, DurationExceededProcessError } from '../../index.js'
 
 Test.before((test) => {
   test.context.maximumDuration = 1000
@@ -18,7 +18,7 @@ Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous p
 })
 
 Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pollFn returns false', async (test) => {
-  await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => false), { 'instanceOf': ProcessDurationExceededError })
+  await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => false), { 'instanceOf': DurationExceededProcessError })
 })
 
 Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pollFn fails', async (test) => {
@@ -28,7 +28,7 @@ Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pol
 Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous pollFn returns false', async (test) => {
   await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => {
     return Promise.resolve(false)
-  }), { 'instanceOf': ProcessDurationExceededError })
+  }), { 'instanceOf': DurationExceededProcessError })
 })
 
 Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous pollFn fails', async (test) => {

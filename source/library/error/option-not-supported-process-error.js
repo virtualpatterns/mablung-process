@@ -1,6 +1,6 @@
 import { ProcessError } from './process-error.js'
 
-class ProcessOptionNotSupportedError extends ProcessError {
+class OptionNotSupportedProcessError extends ProcessError {
 
   constructor(name) {
     super(`The option '${name}' is not supported on this platform.`)
@@ -8,4 +8,4 @@ class ProcessOptionNotSupportedError extends ProcessError {
 
 }
 
-export { ProcessOptionNotSupportedError }
+export { OptionNotSupportedProcessError }

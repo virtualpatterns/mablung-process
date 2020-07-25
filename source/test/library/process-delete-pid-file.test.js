@@ -2,7 +2,7 @@ import FileSystem from 'fs-extra'
 import Test from 'ava'
 import { WorkerClient } from '@virtualpatterns/mablung-worker'
 
-import { Process, ProcessArgumentError } from '../../index.js'
+import { Process, PidFileNotExistsProcessError } from '../../index.js'
 
 const Require = __require
 
@@ -18,7 +18,7 @@ Test.serial('Process.deletePidFile() when called after Process.createPidFile(pat
   Process.createPidFile(path)
   Process.deletePidFile()
 
-  await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), { 'code': 'ENOENT' })
+  test.false(await FileSystem.pathExists(path))
 
 })
 
@@ -31,7 +31,7 @@ Test.serial('Process.deletePidFile() when called before another createPidFile', 
   Process.createPidFile(path)
 
   try {
-    await test.notThrowsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK))
+    test.true(await FileSystem.pathExists(path))
   } finally {
     Process.deletePidFile()
   }
@@ -45,7 +45,7 @@ Test.serial('Process.deletePidFile() when called twice', (test) => {
   Process.createPidFile(path)
   Process.deletePidFile()
 
-  test.throws(Process.deletePidFile.bind(Process), { 'instanceOf': ProcessArgumentError })
+  test.throws(() => Process.deletePidFile(), { 'instanceOf': PidFileNotExistsProcessError })
 
 })
 
@@ -59,7 +59,7 @@ Test.serial('Process.deletePidFile() when using a worker', async (test) => {
     await worker.module.createPidFile(path)
     await worker.module.deletePidFile()
 
-    await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), { 'code': 'ENOENT' })
+    test.false(await FileSystem.pathExists(path))
   
   } finally {
     await worker.exit()

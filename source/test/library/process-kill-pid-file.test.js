@@ -3,7 +3,7 @@ import Test from 'ava'
 import { WorkerClient } from '@virtualpatterns/mablung-worker'
 // import { LoggedClient } from '@virtualpatterns/mablung-worker/logged-client.js'
 
-import { Process, ProcessArgumentError } from '../../index.js'
+import { Process, PidFileNotExistsProcessError } from '../../index.js'
 
 const Require = __require
 
@@ -30,7 +30,7 @@ Test('Process.killPidFile(path) when path exists and is valid', async (test) => 
 
 Test('Process.killPidFile(path) when path does not exist', (test) => {
   let path = `${test.context.basePath}/not-exists.pid`
-  return test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': ProcessArgumentError })
+  return test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': PidFileNotExistsProcessError })
 })
 
 Test('Process.killPidFile(path) when path exists and is invalid', async (test) => {
@@ -38,7 +38,7 @@ Test('Process.killPidFile(path) when path exists and is invalid', async (test) =
   let path = `${test.context.basePath}/exists-invalid.pid`
   await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
 
-  await test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': ProcessArgumentError })
+  await test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': PidFileNotExistsProcessError })
   test.false(Process.existsPidFile(path))
 
 })
