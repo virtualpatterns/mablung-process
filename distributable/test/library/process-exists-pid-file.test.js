@@ -6,12 +6,12 @@ import { Process } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
-Test.before(async test => {
+Test.before(test => {
   test.context.basePath = 'process/pid/exists-pid-file';
-  await FileSystem.ensureDir(test.context.basePath);
 });
 Test('Process.existsPidFile(path) when path exists and is valid', async test => {
   let path = `${test.context.basePath}/exists-valid.pid`;
+  await FileSystem.ensureDir(test.context.basePath);
   await FileSystem.writeFile(path, process.pid.toString(), {
     'encoding': 'utf-8'
   });
@@ -28,6 +28,7 @@ Test('Process.existsPidFile(path) when path does not exist', test => {
 });
 Test('Process.existsPidFile(path) when path exists and is invalid', async test => {
   let path = `${test.context.basePath}/exists-invalid.pid`;
+  await FileSystem.ensureDir(test.context.basePath);
   await FileSystem.writeFile(path, '100000', {
     'encoding': 'utf-8'
   });
@@ -39,6 +40,7 @@ Test('Process.existsPidFile(path) when using a worker', async test => {
   let worker = new WorkerClient(Require.resolve('./worker.js'));
 
   try {
+    await FileSystem.ensureDir(test.context.basePath);
     await FileSystem.writeFile(path, worker.pid.toString(), {
       'encoding': 'utf-8'
     });

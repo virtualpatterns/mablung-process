@@ -7,12 +7,12 @@ import { Process, PidFileExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
-Test.before(async test => {
+Test.before(test => {
   test.context.basePath = 'process/pid/create-pid-file';
-  await FileSystem.ensureDir(test.context.basePath);
 });
 Test.serial('Process.createPidFile(path) when path exists and is valid', async test => {
   let path = `${test.context.basePath}/exists-valid.pid`;
+  await FileSystem.ensureDir(test.context.basePath);
   await FileSystem.writeFile(path, process.pid.toString(), {
     'encoding': 'utf-8'
   });
@@ -40,6 +40,7 @@ Test.serial('Process.createPidFile(path) when path does not exist', async test =
 });
 Test.serial('Process.createPidFile(path) when path exists and is invalid', async test => {
   let path = `${test.context.basePath}/exists-invalid.pid`;
+  await FileSystem.ensureDir(test.context.basePath);
   await FileSystem.writeFile(path, '100000', {
     'encoding': 'utf-8'
   });

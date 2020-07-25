@@ -6,9 +6,8 @@ import { Process, PidFileNotExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
-Test.before(async test => {
+Test.before(test => {
   test.context.basePath = 'process/pid/delete-pid-file';
-  await FileSystem.ensureDir(test.context.basePath);
 });
 Test.serial('Process.deletePidFile() when called after Process.createPidFile(path)', async test => {
   let path = `${test.context.basePath}/after.pid`;

@@ -1,9 +1,12 @@
 import FileSystem from 'fs-extra';
 import { Is } from '@virtualpatterns/mablung-is';
+import Path from 'path';
 import { DurationExceededProcessError } from './error/duration-exceeded-process-error.js';
 import { OptionNotSupportedProcessError } from './error/option-not-supported-process-error.js';
 import { PidFileExistsProcessError } from './error/pid-file-exists-process-error.js';
-import { PidFileNotExistsProcessError } from './error/pid-file-not-exists-process-error.js';
+import { PidFileNotExistsProcessError } from './error/pid-file-not-exists-process-error.js'; // * ensureDir on create, remove from TextDecoderStream
+
+const BaseProcess = process;
 
 class Process {
   static wait(duration) {
@@ -84,7 +87,8 @@ class Process {
     } else if (this.existsPidFile(path)) {
       throw new PidFileExistsProcessError(path);
     } else {
-      FileSystem.writeFileSync(path, process.pid.toString(), {
+      FileSystem.ensureDirSync(Path.dirname(path));
+      FileSystem.writeFileSync(path, this.pid.toString(), {
         'encoding': 'utf-8'
       });
 
@@ -112,11 +116,12 @@ class Process {
   }) {
     try {
       if (handleExit) {
-        this.on('exit', this._onEvent.exit = code => {
-          // console.log(`Process.on('exit', Process._onEvent.exit = (${code}) => { ... })`)
+        this.on('exit', this.__onExit = code => {
+          // console.log(`Process.on('exit', Process.__onExit = (${code}) => { ... })`)
           try {
-            this.deletePidFile();
+            this._onExit(code);
             /* c8 ignore next 3 */
+
           } catch (error) {
             console.error(error);
           }
@@ -128,19 +133,10 @@ class Process {
           throw new OptionNotSupportedProcessError('handleKillSignal');
         } else {
           handleKillSignal.forEach(signal => {
-            this.on(signal, this._onEvent[signal] = () => {
-              // console.log(`Process.on('${signal}', Process._onEvent.${signal} = () => { ... })`)
+            this.on(signal, this[`__on${signal}`] = () => {
+              // console.log(`Process.on('${signal}', Process.__on${signal} = () => { ... })`)
               try {
-                this.deletePidFile(); // this._exit(signal)
-
-                let count = this.listenerCount(signal);
-                /* c8 ignore next 5 */
-
-                if (count <= 0) {
-                  this.exit();
-                } else {
-                  console.log(`Process.listenerCount('${signal}') returned ${count}`);
-                }
+                this._onSignal(signal);
                 /* c8 ignore next 3 */
 
               } catch (error) {
@@ -158,16 +154,44 @@ class Process {
 
       throw error;
     }
-  } // static _exit(eventName) {
-  //   let count = Process.listenerCount(eventName)
-  //   /* c8 ignore next 5 */
-  //   if (count <= 0) {
-  //     Process.exit()
-  //   } else {
-  //     console.log(`Process.listenerCount('${eventName}') returned ${count}`)
-  //   }
-  // }
+  }
 
+  static _onExit(code) {
+    this.deletePidFile();
+  }
+
+  static _onSignal(signal) {
+    this.deletePidFile();
+    let count = this.listenerCount(signal);
+    /* c8 ignore next 5 */
+
+    if (count <= 0) {
+      this.exit();
+    } else {
+      console.log(`Process.listenerCount('${signal}') returned ${count}`);
+    }
+  }
+
+  static _detach({
+    handleExit,
+    handleKillSignal
+  }) {
+    if (handleKillSignal) {
+      handleKillSignal.forEach(signal => {
+        if (this[`__on${signal}`]) {
+          this.off(signal, this[`__on${signal}`]);
+          delete this[`__on${signal}`];
+        }
+      });
+    }
+
+    if (handleExit) {
+      if (this.__onExit) {
+        this.off('exit', this.__onExit);
+        delete this.__onExit;
+      }
+    }
+  }
 
   static deletePidFile() {
     let path = this._pidPath;
@@ -182,27 +206,6 @@ class Process {
       delete Process._pidOption;
     } else {
       throw new PidFileNotExistsProcessError(path);
-    }
-  }
-
-  static _detach({
-    handleExit,
-    handleKillSignal
-  }) {
-    if (handleKillSignal) {
-      handleKillSignal.forEach(signal => {
-        if (this._onEvent[signal]) {
-          this.off(signal, this._onEvent[signal]);
-          delete this._onEvent[signal];
-        }
-      });
-    }
-
-    if (handleExit) {
-      if (this._onEvent.exit) {
-        this.off('exit', this._onEvent.exit);
-        delete this._onEvent.exit;
-      }
     }
   }
 
@@ -222,7 +225,6 @@ class Process {
 
 }
 
-Process._onEvent = {};
-Object.setPrototypeOf(Process, process);
+Object.setPrototypeOf(Process, BaseProcess);
 export { Process };
 //# sourceMappingURL=process.js.map
