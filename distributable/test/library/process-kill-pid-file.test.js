@@ -3,7 +3,7 @@ import FileSystem from 'fs-extra';
 import Test from 'ava';
 import { WorkerClient } from '@virtualpatterns/mablung-worker'; // import { LoggedClient } from '@virtualpatterns/mablung-worker/logged-client.js'
 
-import { Process, ProcessArgumentError } from '../../index.js';
+import { Process, PidFileNotExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
@@ -23,7 +23,7 @@ Test('Process.killPidFile(path) when path exists and is valid', async test => {
 Test('Process.killPidFile(path) when path does not exist', test => {
   let path = `${test.context.basePath}/not-exists.pid`;
   return test.throws(Process.killPidFile.bind(Process, path), {
-    'instanceOf': ProcessArgumentError
+    'instanceOf': PidFileNotExistsProcessError
   });
 });
 Test('Process.killPidFile(path) when path exists and is invalid', async test => {
@@ -32,7 +32,7 @@ Test('Process.killPidFile(path) when path exists and is invalid', async test => 
     'encoding': 'utf-8'
   });
   await test.throws(Process.killPidFile.bind(Process, path), {
-    'instanceOf': ProcessArgumentError
+    'instanceOf': PidFileNotExistsProcessError
   });
   test.false(Process.existsPidFile(path));
 });

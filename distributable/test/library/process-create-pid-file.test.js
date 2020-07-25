@@ -3,7 +3,7 @@ import FileSystem from 'fs-extra';
 import { Is } from '@virtualpatterns/mablung-is';
 import Test from 'ava';
 import { WorkerClient } from '@virtualpatterns/mablung-worker';
-import { Process, ProcessArgumentError } from '../../index.js';
+import { Process, PidFileExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
@@ -18,11 +18,11 @@ Test.serial('Process.createPidFile(path) when path exists and is valid', async t
   });
 
   try {
-    test.throws(Process.createPidFile.bind(Process, path), {
-      'instanceOf': ProcessArgumentError
+    test.throws(() => Process.createPidFile(path), {
+      'instanceOf': PidFileExistsProcessError
     });
   } finally {
-    await FileSystem.unlink(path);
+    await FileSystem.remove(path);
   }
 });
 Test.serial('Process.createPidFile(path) when path does not exist', async test => {
@@ -59,8 +59,8 @@ Test.serial('Process.createPidFile(path) when called twice', test => {
   Process.createPidFile(path);
 
   try {
-    test.throws(Process.createPidFile.bind(Process, path), {
-      'instanceOf': ProcessArgumentError
+    test.throws(() => Process.createPidFile(path), {
+      'instanceOf': PidFileExistsProcessError
     });
   } finally {
     Process.deletePidFile();
@@ -116,7 +116,7 @@ Test.serial('Process.createPidFile(path) on uncaught exception', async test => {
 
   test.false(await FileSystem.pathExists(path));
 });
-Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessOptionNotSupportedError', async test => {
+Test.serial('Process.createPidFile(path) on SIGINT optionally throws OptionNotSupportedProcessError', async test => {
   let path = `${test.context.basePath}/on-sigint.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
 
@@ -145,7 +145,7 @@ Test.serial('Process.createPidFile(path) on SIGINT optionally throws ProcessOpti
 
   test.false(await FileSystem.pathExists(path));
 });
-Test.serial('Process.createPidFile(path) on SIGTERM optionally throws ProcessOptionNotSupportedError', async test => {
+Test.serial('Process.createPidFile(path) on SIGTERM optionally throws OptionNotSupportedProcessError', async test => {
   let path = `${test.context.basePath}/on-sigterm.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
 

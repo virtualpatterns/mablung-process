@@ -32,9 +32,7 @@ Test('Process.existsPidFile(path) when path exists and is invalid', async test =
     'encoding': 'utf-8'
   });
   test.false(Process.existsPidFile(path));
-  await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), {
-    'code': 'ENOENT'
-  });
+  test.false(await FileSystem.pathExists(path));
 });
 Test('Process.existsPidFile(path) when using a worker', async test => {
   let path = `${test.context.basePath}/worker.pid`;

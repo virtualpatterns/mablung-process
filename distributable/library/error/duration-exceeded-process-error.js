@@ -1,11 +1,11 @@
 import { ProcessError } from './process-error.js';
 
-class ProcessDurationExceededError extends ProcessError {
+class DurationExceededProcessError extends ProcessError {
   constructor(duration, maximumDuration) {
     super(`The duration ${duration}ms exceeds the maximum duration of ${maximumDuration}ms.`);
   }
 
 }
 
-export { ProcessDurationExceededError };
-//# sourceMappingURL=process-duration-exceeded-error.js.map
+export { DurationExceededProcessError };
+//# sourceMappingURL=duration-exceeded-process-error.js.map

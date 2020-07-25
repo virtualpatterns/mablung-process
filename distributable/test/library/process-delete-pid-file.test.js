@@ -2,7 +2,7 @@ import { createRequire as _createRequire } from "module";
 import FileSystem from 'fs-extra';
 import Test from 'ava';
 import { WorkerClient } from '@virtualpatterns/mablung-worker';
-import { Process, ProcessArgumentError } from '../../index.js';
+import { Process, PidFileNotExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
@@ -14,9 +14,7 @@ Test.serial('Process.deletePidFile() when called after Process.createPidFile(pat
   let path = `${test.context.basePath}/after.pid`;
   Process.createPidFile(path);
   Process.deletePidFile();
-  await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), {
-    'code': 'ENOENT'
-  });
+  test.false(await FileSystem.pathExists(path));
 });
 Test.serial('Process.deletePidFile() when called before another createPidFile', async test => {
   let path = `${test.context.basePath}/before.pid`;
@@ -25,7 +23,7 @@ Test.serial('Process.deletePidFile() when called before another createPidFile', 
   Process.createPidFile(path);
 
   try {
-    await test.notThrowsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK));
+    test.true(await FileSystem.pathExists(path));
   } finally {
     Process.deletePidFile();
   }
@@ -34,8 +32,8 @@ Test.serial('Process.deletePidFile() when called twice', test => {
   let path = `${test.context.basePath}/twice.pid`;
   Process.createPidFile(path);
   Process.deletePidFile();
-  test.throws(Process.deletePidFile.bind(Process), {
-    'instanceOf': ProcessArgumentError
+  test.throws(() => Process.deletePidFile(), {
+    'instanceOf': PidFileNotExistsProcessError
   });
 });
 Test.serial('Process.deletePidFile() when using a worker', async test => {
@@ -45,9 +43,7 @@ Test.serial('Process.deletePidFile() when using a worker', async test => {
   try {
     await worker.module.createPidFile(path);
     await worker.module.deletePidFile();
-    await test.throwsAsync(FileSystem.access.bind(FileSystem, path, FileSystem.F_OK), {
-      'code': 'ENOENT'
-    });
+    test.false(await FileSystem.pathExists(path));
   } finally {
     await worker.exit();
   }

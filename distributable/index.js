@@ -1,4 +1,6 @@
 export * from './library/process.js';
-export * from './library/error/process-argument-error.js';
-export * from './library/error/process-duration-exceeded-error.js';
+export * from './library/error/duration-exceeded-process-error.js';
+export * from './library/error/option-not-supported-process-error.js';
+export * from './library/error/pid-file-exists-process-error.js';
+export * from './library/error/pid-file-not-exists-process-error.js';
 //# sourceMappingURL=index.js.map
