@@ -1,0 +1,8 @@
+{
+  "ignores": [
+    "@babel/*",
+    "@virtualpatterns/mablung-*",
+    "babel-*",
+    "eslint-*"
+  ]
+}
