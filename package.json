@@ -65,7 +65,7 @@
     "@babel/core": "^7.10.5",
     "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
-    "@virtualpatterns/mablung-babel-plugin-replace": "git+https://github.com/virtualpatterns/mablung-babel-plugin-replace.git",
+    "@virtualpatterns/mablung-babel-plugin-replace-identifier": "git+https://github.com/virtualpatterns/mablung-babel-plugin-replace-identifier.git",
     "@virtualpatterns/mablung-source-map-support": "git+https://github.com/virtualpatterns/mablung-source-map-support.git",
     "@virtualpatterns/mablung-worker": "git+https://github.com/virtualpatterns/mablung-worker.git",
     "ava": "^3.10.1",
