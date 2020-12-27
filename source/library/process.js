@@ -182,7 +182,7 @@ class Process {
 
   }
 
-  static _onExit(code) {
+  static _onExit( /* code */ ) {
     this.deletePidFile()
   }
 
