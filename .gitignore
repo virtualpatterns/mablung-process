@@ -1,4 +1,5 @@
 .DS_Store
-/distributable/sandbox
 /node_modules
 /process
+/release/sandbox
+/source/sandbox
