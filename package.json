@@ -38,7 +38,7 @@
   },
   "scripts": {
     "refresh:10": "shx rm -f package-lock.json",
-    "refresh:20": "shx rm -Rf node_modules",
+    "refresh:20": "shx rm -Rf node_modules/*",
     "refresh:30": "npm cache clean --force",
     "refresh:40": "npm install",
     "refresh": "run-s --silent refresh:*",
