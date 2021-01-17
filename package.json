@@ -37,11 +37,7 @@
     "url": "https://github.com/virtualpatterns/mablung-process"
   },
   "scripts": {
-    "refresh:10": "shx rm -f package-lock.json",
-    "refresh:20": "shx rm -Rf node_modules/*",
-    "refresh:30": "npm cache clean --force",
-    "refresh:40": "npm install",
-    "refresh": "run-s --silent refresh:*",
+    "refresh": "rm -Rf node_modules package-lock.json && npm cache clean --force && npm install",
     "upgrade:10": "npm-check-updates --upgrade",
     "upgrade:20": "shx rm -f package-lock.json",
     "upgrade:30": "npm install",
