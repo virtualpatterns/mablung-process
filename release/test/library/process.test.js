@@ -2,7 +2,7 @@ import Test from 'ava';
 
 import { Process } from '../../index.js';
 
-Test('Process.wait(duration)', async test => {
+Test('Process.wait(duration)', async (test) => {
 
   let duration = 1000;
 
@@ -13,4 +13,5 @@ Test('Process.wait(duration)', async test => {
   test.assert(after - before >= duration);
 
 });
+
 //# sourceMappingURL=process.test.js.map

@@ -6,11 +6,11 @@ import { Process, PidFileNotExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
-Test.before(test => {
+Test.before((test) => {
   test.context.basePath = 'process/pid/delete-pid-file';
 });
 
-Test.serial('Process.deletePidFile() when called after Process.createPidFile(path)', async test => {
+Test.serial('Process.deletePidFile() when called after Process.createPidFile(path)', async (test) => {
 
   let path = `${test.context.basePath}/after.pid`;
 
@@ -21,7 +21,7 @@ Test.serial('Process.deletePidFile() when called after Process.createPidFile(pat
 
 });
 
-Test.serial('Process.deletePidFile() when called before another createPidFile', async test => {
+Test.serial('Process.deletePidFile() when called before another createPidFile', async (test) => {
 
   let path = `${test.context.basePath}/before.pid`;
 
@@ -37,7 +37,7 @@ Test.serial('Process.deletePidFile() when called before another createPidFile', 
 
 });
 
-Test.serial('Process.deletePidFile() when called twice', test => {
+Test.serial('Process.deletePidFile() when called twice', (test) => {
 
   let path = `${test.context.basePath}/twice.pid`;
 
@@ -48,7 +48,7 @@ Test.serial('Process.deletePidFile() when called twice', test => {
 
 });
 
-Test.serial('Process.deletePidFile() when using a worker', async test => {
+Test.serial('Process.deletePidFile() when using a worker', async (test) => {
 
   let path = `${test.context.basePath}/worker.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
@@ -65,4 +65,5 @@ Test.serial('Process.deletePidFile() when using a worker', async test => {
   }
 
 });
+
 //# sourceMappingURL=process-delete-pid-file.test.js.map

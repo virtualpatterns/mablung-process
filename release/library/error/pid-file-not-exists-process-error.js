@@ -11,4 +11,5 @@ class PidFileNotExistsProcessError extends ProcessError {
 
 
 export { PidFileNotExistsProcessError };
+
 //# sourceMappingURL=pid-file-not-exists-process-error.js.map

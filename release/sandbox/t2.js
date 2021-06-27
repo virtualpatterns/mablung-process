@@ -13,4 +13,5 @@ import { Process } from '../index'
   }
 
 })();
+
 //# sourceMappingURL=t2.js.map

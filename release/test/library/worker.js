@@ -15,4 +15,5 @@ export function deletePidFile() {
 export function throwUncaughtException() {
   setImmediate(() => {throw new Error('throwUncaughtException() { ... }');});
 }
+
 //# sourceMappingURL=worker.js.map

@@ -9,4 +9,5 @@ class DurationExceededProcessError extends ProcessError {
 
 
 export { DurationExceededProcessError };
+
 //# sourceMappingURL=duration-exceeded-process-error.js.map

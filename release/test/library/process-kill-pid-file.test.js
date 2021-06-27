@@ -7,11 +7,11 @@ import { Process, PidFileNotExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
-Test.before(test => {
+Test.before((test) => {
   test.context.basePath = 'process/pid/kill-pid-file';
 });
 
-Test('Process.killPidFile(path) when path exists and is valid', async test => {
+Test('Process.killPidFile(path) when path exists and is valid', async (test) => {
 
   let worker = new WorkerClient(Require.resolve('./worker.js'));
   let path = `${test.context.basePath}/exists-valid.pid`;
@@ -27,12 +27,12 @@ Test('Process.killPidFile(path) when path exists and is valid', async test => {
 
 });
 
-Test('Process.killPidFile(path) when path does not exist', test => {
+Test('Process.killPidFile(path) when path does not exist', (test) => {
   let path = `${test.context.basePath}/not-exists.pid`;
   return test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': PidFileNotExistsProcessError });
 });
 
-Test('Process.killPidFile(path) when path exists and is invalid', async test => {
+Test('Process.killPidFile(path) when path exists and is invalid', async (test) => {
 
   let path = `${test.context.basePath}/exists-invalid.pid`;
 
@@ -43,4 +43,5 @@ Test('Process.killPidFile(path) when path exists and is invalid', async test => 
   test.false(Process.existsPidFile(path));
 
 });
+
 //# sourceMappingURL=process-kill-pid-file.test.js.map

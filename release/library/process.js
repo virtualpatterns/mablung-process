@@ -14,7 +14,7 @@ const BaseProcess = process;
 class Process {
 
   static wait(duration) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, duration);
     });
   }
@@ -35,7 +35,7 @@ class Process {
           if (value instanceof Promise) {
 
             value.
-            then(value => {
+            then((value) => {
 
               if (!value && duration < maximumDuration) {
                 setTimeout(() => waitLoop(start), pollInterval);
@@ -46,7 +46,7 @@ class Process {
               }
 
             }).
-            catch(error => {
+            catch((error) => {
 
               if (duration < maximumDuration) {
                 setTimeout(() => waitLoop(start), pollInterval);
@@ -137,7 +137,7 @@ class Process {
 
       if (handleExit) {
 
-        this.on('exit', this.__onExit = code => {
+        this.on('exit', this.__onExit = (code) => {
           // console.log(`Process.on('exit', Process.__onExit = (${code}) => { ... })`)
 
           try {
@@ -157,7 +157,7 @@ class Process {
           throw new OptionNotSupportedProcessError('handleKillSignal');
         } else {
 
-          handleKillSignal.forEach(signal => {
+          handleKillSignal.forEach((signal) => {
             this.on(signal, this[`__on${signal}`] = () => {
               // console.log(`Process.on('${signal}', Process.__on${signal} = () => { ... })`)
 
@@ -205,7 +205,7 @@ class Process {
 
     if (handleKillSignal) {
 
-      handleKillSignal.forEach(signal => {
+      handleKillSignal.forEach((signal) => {
         if (this[`__on${signal}`]) {
           this.off(signal, this[`__on${signal}`]);
           delete this[`__on${signal}`];
@@ -265,4 +265,5 @@ class Process {
 Object.setPrototypeOf(Process, BaseProcess);
 
 export { Process };
+
 //# sourceMappingURL=process.js.map

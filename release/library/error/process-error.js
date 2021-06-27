@@ -7,4 +7,5 @@ class ProcessError extends Error {
 
 
 export { ProcessError };
+
 //# sourceMappingURL=process-error.js.map

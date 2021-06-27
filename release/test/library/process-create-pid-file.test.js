@@ -7,11 +7,11 @@ import { Process, PidFileExistsProcessError } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
-Test.before(test => {
+Test.before((test) => {
   test.context.basePath = 'process/pid/create-pid-file';
 });
 
-Test.serial('Process.createPidFile(path) when path exists and is valid', async test => {
+Test.serial('Process.createPidFile(path) when path exists and is valid', async (test) => {
 
   let path = `${test.context.basePath}/exists-valid.pid`;
 
@@ -26,7 +26,7 @@ Test.serial('Process.createPidFile(path) when path exists and is valid', async t
 
 });
 
-Test.serial('Process.createPidFile(path) when path does not exist', async test => {
+Test.serial('Process.createPidFile(path) when path does not exist', async (test) => {
 
   let path = `${test.context.basePath}/not-exists.pid`;
 
@@ -41,7 +41,7 @@ Test.serial('Process.createPidFile(path) when path does not exist', async test =
 
 });
 
-Test.serial('Process.createPidFile(path) when path exists and is invalid', async test => {
+Test.serial('Process.createPidFile(path) when path exists and is invalid', async (test) => {
 
   let path = `${test.context.basePath}/exists-invalid.pid`;
 
@@ -59,7 +59,7 @@ Test.serial('Process.createPidFile(path) when path exists and is invalid', async
 
 });
 
-Test.serial('Process.createPidFile(path) when called twice', test => {
+Test.serial('Process.createPidFile(path) when called twice', (test) => {
 
   let path = `${test.context.basePath}/twice.pid`;
 
@@ -73,7 +73,7 @@ Test.serial('Process.createPidFile(path) when called twice', test => {
 
 });
 
-Test.serial('Process.createPidFile(path) when using a worker', async test => {
+Test.serial('Process.createPidFile(path) when using a worker', async (test) => {
 
   let path = `${test.context.basePath}/worker.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
@@ -95,7 +95,7 @@ Test.serial('Process.createPidFile(path) when using a worker', async test => {
 
 });
 
-Test.serial('Process.createPidFile(path) on exit', async test => {
+Test.serial('Process.createPidFile(path) on exit', async (test) => {
 
   let path = `${test.context.basePath}/on-exit.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
@@ -110,7 +110,7 @@ Test.serial('Process.createPidFile(path) on exit', async test => {
 
 });
 
-Test.serial('Process.createPidFile(path) on uncaught exception', async test => {
+Test.serial('Process.createPidFile(path) on uncaught exception', async (test) => {
 
   let path = `${test.context.basePath}/on-uncaught-exception.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
@@ -119,14 +119,14 @@ Test.serial('Process.createPidFile(path) on uncaught exception', async test => {
     await worker.module.createPidFile(path, { 'handleExit': true, 'handleKillSignal': false });
   } finally {
     await worker.module.throwUncaughtException();
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   test.false(await FileSystem.pathExists(path));
 
 });
 
-Test.serial('Process.createPidFile(path) on SIGINT optionally throws OptionNotSupportedProcessError', async test => {
+Test.serial('Process.createPidFile(path) on SIGINT optionally throws OptionNotSupportedProcessError', async (test) => {
 
   let path = `${test.context.basePath}/on-sigint.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
@@ -145,7 +145,7 @@ Test.serial('Process.createPidFile(path) on SIGINT optionally throws OptionNotSu
       await worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': ['SIGINT'] });
     } finally {
       Process.killPidFile(path, 'SIGINT');
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
   }
@@ -154,7 +154,7 @@ Test.serial('Process.createPidFile(path) on SIGINT optionally throws OptionNotSu
 
 });
 
-Test.serial('Process.createPidFile(path) on SIGTERM optionally throws OptionNotSupportedProcessError', async test => {
+Test.serial('Process.createPidFile(path) on SIGTERM optionally throws OptionNotSupportedProcessError', async (test) => {
 
   let path = `${test.context.basePath}/on-sigterm.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
@@ -173,7 +173,7 @@ Test.serial('Process.createPidFile(path) on SIGTERM optionally throws OptionNotS
       await worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': ['SIGTERM'] });
     } finally {
       Process.killPidFile(path, 'SIGTERM');
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
   }
@@ -181,4 +181,5 @@ Test.serial('Process.createPidFile(path) on SIGTERM optionally throws OptionNotS
   test.false(await FileSystem.pathExists(path));
 
 });
+
 //# sourceMappingURL=process-create-pid-file.test.js.map

@@ -9,4 +9,5 @@ class OptionNotSupportedProcessError extends ProcessError {
 
 
 export { OptionNotSupportedProcessError };
+
 //# sourceMappingURL=option-not-supported-process-error.js.map

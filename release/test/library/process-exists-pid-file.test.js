@@ -6,11 +6,11 @@ import { Process } from '../../index.js';
 
 const Require = _createRequire(import.meta.url);
 
-Test.before(test => {
+Test.before((test) => {
   test.context.basePath = 'process/pid/exists-pid-file';
 });
 
-Test('Process.existsPidFile(path) when path exists and is valid', async test => {
+Test('Process.existsPidFile(path) when path exists and is valid', async (test) => {
 
   let path = `${test.context.basePath}/exists-valid.pid`;
 
@@ -25,12 +25,12 @@ Test('Process.existsPidFile(path) when path exists and is valid', async test => 
 
 });
 
-Test('Process.existsPidFile(path) when path does not exist', test => {
+Test('Process.existsPidFile(path) when path does not exist', (test) => {
   let path = `${test.context.basePath}/not-exists.pid`;
   test.false(Process.existsPidFile(path));
 });
 
-Test('Process.existsPidFile(path) when path exists and is invalid', async test => {
+Test('Process.existsPidFile(path) when path exists and is invalid', async (test) => {
 
   let path = `${test.context.basePath}/exists-invalid.pid`;
 
@@ -42,7 +42,7 @@ Test('Process.existsPidFile(path) when path exists and is invalid', async test =
 
 });
 
-Test('Process.existsPidFile(path) when using a worker', async test => {
+Test('Process.existsPidFile(path) when using a worker', async (test) => {
 
   let path = `${test.context.basePath}/worker.pid`;
   let worker = new WorkerClient(Require.resolve('./worker.js'));
@@ -63,4 +63,5 @@ Test('Process.existsPidFile(path) when using a worker', async test => {
   }
 
 });
+
 //# sourceMappingURL=process-exists-pid-file.test.js.map
