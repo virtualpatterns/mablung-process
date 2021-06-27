@@ -41,7 +41,7 @@
     "test": "make test"
   },
   "type": "module",
-  "version": "0.0.2-22",
+  "version": "0.0.2-23",
   "dependencies": {
     "@virtualpatterns/mablung-is": "virtualpatterns/mablung-is.git"
   },
