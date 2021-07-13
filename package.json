@@ -43,7 +43,7 @@
     "test": "make test"
   },
   "type": "module",
-  "version": "0.0.2-25",
+  "version": "0.0.2-26",
   "dependencies": {
     "@virtualpatterns/mablung-is": "0.0.1-27"
   },
