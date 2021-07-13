@@ -17,14 +17,12 @@
   "c8": {
     "all": true,
     "exclude": [
-      "release/sandbox",
-      "release/test",
-      "source/sandbox",
-      "source/test"
+      "release/sandbox"
     ],
     "reporter": [
       "html"
-    ]
+    ],
+    "src": "release"
   },
   "description": "TBD",
   "exports": {
