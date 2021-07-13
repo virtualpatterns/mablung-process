@@ -9,7 +9,8 @@ Test.before(async (test) => {
   'DurationExceededProcessError',
   'OptionNotSupportedProcessError',
   'PidFileExistsProcessError',
-  'PidFileNotExistsProcessError'
+  'PidFileNotExistsProcessError',
+  'OK'
 ].forEach((name) => {
 
   Test(name, async (test) => {

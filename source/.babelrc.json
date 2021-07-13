@@ -24,7 +24,5 @@
       }
     ]
   ],
-  "presets": [],
-  "retainLines": true,
-  "sourceType": "module"
+  "presets": []
 }
