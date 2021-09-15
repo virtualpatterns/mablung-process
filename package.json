@@ -3,7 +3,7 @@
   "ava": {
     "failFast": true,
     "files": [
-      "release/test/**/*.test.*"
+      "release/**/test/**/*.test.*"
     ],
     "nodeArguments": [
       "--no-warnings",
@@ -30,8 +30,8 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "/release/library",
-    "/release/index.js"
+    "release/library",
+    "release/index.js"
   ],
   "license": "GPL-3.0+",
   "name": "@virtualpatterns/mablung-process",
@@ -52,7 +52,7 @@
     "@babel/core": "^7.14.6",
     "@babel/eslint-parser": "^7.14.7",
     "@babel/plugin-syntax-import-meta": "^7.10.4",
-    "@virtualpatterns/mablung-babel-plugin-replace-identifier": "0.0.1-26",
+    "@virtualpatterns/babel-plugin-mablung-replace-identifier": "0.0.1-26",
     "@virtualpatterns/mablung-check-dependency": "0.0.1-58",
     "@virtualpatterns/mablung-makefile": "0.0.1-80",
     "@virtualpatterns/mablung-source-map-support": "0.0.2-59",
