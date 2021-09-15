@@ -2,7 +2,7 @@
   "plugins": [ 
     "@babel/plugin-syntax-import-meta",
     [
-      "@virtualpatterns/mablung-babel-plugin-replace-identifier",
+      "@virtualpatterns/babel-plugin-mablung-replace-identifier",
       {
         "rule": [
           {

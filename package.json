@@ -45,24 +45,24 @@
   "type": "module",
   "version": "0.0.2-28",
   "dependencies": {
-    "@virtualpatterns/mablung-is": "0.0.1-31"
+    "@virtualpatterns/mablung-is": "0.0.1-40"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.5",
-    "@babel/core": "^7.14.6",
-    "@babel/eslint-parser": "^7.14.7",
+    "@babel/cli": "^7.15.4",
+    "@babel/core": "^7.15.5",
+    "@babel/eslint-parser": "^7.15.4",
     "@babel/plugin-syntax-import-meta": "^7.10.4",
-    "@virtualpatterns/babel-plugin-mablung-replace-identifier": "0.0.1-26",
-    "@virtualpatterns/mablung-check-dependency": "0.0.1-58",
-    "@virtualpatterns/mablung-makefile": "0.0.1-80",
-    "@virtualpatterns/mablung-source-map-support": "0.0.2-59",
-    "@virtualpatterns/mablung-worker": "0.0.2-40",
+    "@virtualpatterns/babel-plugin-mablung-replace-identifier": "0.0.26-6",
+    "@virtualpatterns/mablung-check-dependency": "0.0.26-16",
+    "@virtualpatterns/mablung-makefile": "0.0.26-90",
+    "@virtualpatterns/mablung-source-map-support": "0.0.26-20",
+    "@virtualpatterns/mablung-worker": "0.0.2-59",
     "ava": "^3.15.0",
-    "c8": "^7.7.3",
-    "eslint": "^7.30.0",
+    "c8": "^7.9.0",
+    "eslint": "^7.32.0",
     "eslint-plugin-babel": "^5.3.1",
     "fs-extra": "^10.0.0",
-    "npm-check-updates": "^11.8.3",
+    "npm-check-updates": "^11.8.5",
     "shx": "^0.3.3"
   }
 }
