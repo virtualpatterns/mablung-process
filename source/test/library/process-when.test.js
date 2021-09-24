@@ -1,38 +1,44 @@
 import Test from 'ava'
 
-import { Process, DurationExceededProcessError } from '../../index.js'
+import { Process } from '../../index.js'
 
-Test.before((test) => {
-  test.context.maximumDuration = 1000
-  test.context.pollInterval = test.context.maximumDuration / 4
+import { ProcessDurationExceededError } from '../../index.js'
+
+const MaximumDuration = 1000
+const PollInterval = parseInt(Math.ceil(MaximumDuration / 4.00))
+
+Test('when(..., ..., ...) using a synchronous function that returns true', async (test) => {
+  test.truthy(await Process.when(MaximumDuration, PollInterval, () => {
+    return true
+  }))
 })
 
-Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pollFn returns true', async (test) => {
-  test.truthy(await Process.when(test.context.maximumDuration, test.context.pollInterval, () => true))
-})
-
-Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous pollFn returns true', async (test) => {
-  test.truthy(await Process.when(test.context.maximumDuration, test.context.pollInterval, () => {
+Test('when(..., ..., ...) using an asynchronous function that returns true', async (test) => {
+  test.truthy(await Process.when(MaximumDuration, PollInterval, () => {
     return Promise.resolve(true)
   }))
 })
 
-Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pollFn returns false', async (test) => {
-  await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => false), { 'instanceOf': DurationExceededProcessError })
+Test('when(..., ..., ...) using a synchronous function that returns false', async (test) => {
+  await test.throwsAsync(Process.when(MaximumDuration, PollInterval, () => {
+    return false
+  }), { 'instanceOf': ProcessDurationExceededError })
 })
 
-Test('Process.when(maximumDuration, pollInterval, pollFn) when a synchronous pollFn fails', async (test) => {
-  await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => { throw Error() }), { 'instanceOf': Error })
+Test('when(..., ..., ...) using a synchronous function that fails', async (test) => {
+  await test.throwsAsync(Process.when(MaximumDuration, PollInterval, () => {
+    throw new Error()
+  }), { 'instanceOf': Error })
 })
 
-Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous pollFn returns false', async (test) => {
-  await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => {
+Test('when(..., ..., ...) using an asynchronous function that returns false', async (test) => {
+  await test.throwsAsync(Process.when(MaximumDuration, PollInterval, () => {
     return Promise.resolve(false)
-  }), { 'instanceOf': DurationExceededProcessError })
+  }), { 'instanceOf': ProcessDurationExceededError })
 })
 
-Test('Process.when(maximumDuration, pollInterval, pollFn) when an asynchronous pollFn fails', async (test) => {
-  await test.throwsAsync(Process.when(test.context.maximumDuration, test.context.pollInterval, () => {
-    return new Promise(() => { throw Error() })
+Test('when(..., ..., ...) using an asynchronous function that fails', async (test) => {
+  await test.throwsAsync(Process.when(MaximumDuration, PollInterval, () => {
+    return Promise.reject(new Error())
   }), { 'instanceOf': Error })
 })

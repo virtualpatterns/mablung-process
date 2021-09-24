@@ -1,0 +1,14 @@
+{
+  "all": true,
+  "exclude": [
+    "release/header",
+    "release/sandbox",
+    "ava.config.cjs"
+  ],
+  "reporter": [
+    "html",
+    "text-summary"
+  ],
+  "src": "release",
+  "tempDirectory": "data/coverage"
+}

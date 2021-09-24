@@ -1,65 +1,75 @@
+import { CreateLoggedProcess, WorkerClient } from '@virtualpatterns/mablung-worker'
 import FileSystem from 'fs-extra'
+import Path from 'path'
 import Test from 'ava'
-import { WorkerClient } from '@virtualpatterns/mablung-worker'
 
-import { Process } from '../../index.js'
-
+const FilePath = __filePath
+const LogPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.log')
+const LoggedClient = CreateLoggedProcess(WorkerClient, LogPath)
+const PidPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.pid')
 const Require = __require
+const WorkerPath = Require.resolve('./worker/process.js')
 
-Test.before((test) => {
-  test.context.basePath = 'process/pid/exists-pid-file'
+Test.before(async () => {
+  await FileSystem.ensureDir(Path.dirname(LogPath))
+  await FileSystem.remove(LogPath)
 })
 
-Test('Process.existsPidFile(path) when path exists and is valid', async (test) => {
+Test.beforeEach(() => {
+  return FileSystem.remove(PidPath)
+})
 
-  let path = `${test.context.basePath}/exists-valid.pid`
+Test.serial('existsPidFile(\'...\') when \'...\' does not exist', async (test) => {
 
-  await FileSystem.ensureDir(test.context.basePath)
-  await FileSystem.writeFile(path, process.pid.toString(), { 'encoding': 'utf-8' })
+  let client = new LoggedClient(WorkerPath)
+
+  await client.whenReady()
 
   try {
-    test.true(Process.existsPidFile(path))
+    test.false(await client.worker.existsPidFile(PidPath))
   } finally {
-    await FileSystem.unlink(path)
+    await client.exit()
   }
 
 })
 
-Test('Process.existsPidFile(path) when path does not exist', (test) => {
-  let path = `${test.context.basePath}/not-exists.pid`
-  test.false(Process.existsPidFile(path))
-})
+Test.serial('existsPidFile(\'...\') when \'...\' exists and is valid', async (test) => {
 
-Test('Process.existsPidFile(path) when path exists and is invalid', async (test) => {
+  let client = new LoggedClient(WorkerPath)
 
-  let path = `${test.context.basePath}/exists-invalid.pid`
-
-  await FileSystem.ensureDir(test.context.basePath)
-  await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
-
-  test.false(Process.existsPidFile(path))
-  test.false(await FileSystem.pathExists(path))
-
-})
-
-Test('Process.existsPidFile(path) when using a worker', async (test) => {
-
-  let path = `${test.context.basePath}/worker.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  await client.whenReady()
 
   try {
 
-    await FileSystem.ensureDir(test.context.basePath)
-    await FileSystem.writeFile(path, worker.pid.toString(), { 'encoding': 'utf-8' })
+    await FileSystem.writeFile(PidPath, client.pid.toString(), { 'encoding': 'utf-8' })
 
     try {
-      test.true(await worker.module.existsPidFile(path))
+      test.true(await client.worker.existsPidFile(PidPath))
     } finally {
-      await FileSystem.unlink(path)
+      await FileSystem.remove(PidPath)
     }
-  
+
   } finally {
-    await worker.exit()
+    await client.exit()
+  }
+
+})
+
+Test.serial('existsPidFile(\'...\') when \'...\' exists and is invalid', async (test) => {
+
+  let client = new LoggedClient(WorkerPath)
+
+  await client.whenReady()
+
+  try {
+
+    await FileSystem.writeFile(PidPath, '100000', { 'encoding': 'utf-8' })
+
+    test.false(await client.worker.existsPidFile(PidPath))
+    test.false(await FileSystem.pathExists(PidPath))
+
+  } finally {
+    await client.exit()
   }
 
 })

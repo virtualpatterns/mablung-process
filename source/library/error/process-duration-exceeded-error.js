@@ -1,6 +1,6 @@
 import { ProcessError } from './process-error.js'
 
-class DurationExceededProcessError extends ProcessError {
+class ProcessDurationExceededError extends ProcessError {
 
   constructor(duration, maximumDuration) {
     super(`The duration ${duration}ms exceeds the maximum duration of ${maximumDuration}ms.`)
@@ -8,4 +8,4 @@ class DurationExceededProcessError extends ProcessError {
 
 }
 
-export { DurationExceededProcessError }
+export { ProcessDurationExceededError }

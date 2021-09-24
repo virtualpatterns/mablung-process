@@ -1,15 +1,9 @@
 import FileSystem from 'fs-extra'
-import { Is } from '@virtualpatterns/mablung-is'
 import Path from 'path'
 
-import { DurationExceededProcessError } from './error/duration-exceeded-process-error.js'
-import { OptionNotSupportedProcessError } from './error/option-not-supported-process-error.js'
-import { PidFileExistsProcessError } from './error/pid-file-exists-process-error.js'
-import { PidFileNotExistsProcessError } from './error/pid-file-not-exists-process-error.js'
-
-// * ensureDir on create, remove from TextDecoderStream
-
-const BaseProcess = process
+import { ProcessDurationExceededError } from './error/process-duration-exceeded-error.js'
+import { ProcessPidFileExistsError } from './error/process-pid-file-exists-error.js'
+import { ProcessPidFileNotExistsError } from './error/process-pid-file-not-exists-error.js'
 
 class Process {
 
@@ -40,7 +34,7 @@ class Process {
                 if (!value && duration < maximumDuration) {
                   setTimeout(() => waitLoop(start), pollInterval)
                 } else if (!value && duration >= maximumDuration) {
-                  reject(new DurationExceededProcessError(duration, maximumDuration))
+                  reject(new ProcessDurationExceededError(duration, maximumDuration))
                 } else {
                   resolve(value)
                 }
@@ -61,7 +55,7 @@ class Process {
             if (!value && duration < maximumDuration) {
               setTimeout(() => waitLoop(start), pollInterval)
             } else if (!value && duration >= maximumDuration) {
-              reject(new DurationExceededProcessError(duration, maximumDuration))
+              reject(new ProcessDurationExceededError(duration, maximumDuration))
             } else {
               resolve(value)
             }
@@ -104,12 +98,12 @@ class Process {
   
   }
   
-  static createPidFile(path, { handleExit = true, handleKillSignal = Is.windows() ? false : [ 'SIGINT', 'SIGTERM' ] } = {}) {
+  static createPidFile(path, { handleExit = true } = {}) {
 
-    if (this._pidPath) {
-      throw new PidFileExistsProcessError(this._pidPath)
+    if (this.pidPath) {
+      throw new ProcessPidFileExistsError(this.pidPath)
     } else if (this.existsPidFile(path)) {
-      throw new PidFileExistsProcessError(path)
+      throw new ProcessPidFileExistsError(path)
     } else {
   
       FileSystem.ensureDirSync(Path.dirname(path))
@@ -117,10 +111,10 @@ class Process {
 
       try {
 
-        this._attach({ handleExit, handleKillSignal })
+        this.attachAllHandler({ handleExit })
     
-        this._pidPath = path
-        this._pidOption = { handleExit, handleKillSignal }
+        this.pidPath = path
+        this.pidOption = { handleExit }
   
       } catch (error) {
         FileSystem.removeSync(path)
@@ -131,117 +125,75 @@ class Process {
   
   }
 
-  static _attach({ handleExit, handleKillSignal }) {
-
-    try {
-
-      if (handleExit) {
-
-        this.on('exit', this.__onExit = (code) => {
-          // console.log(`Process.on('exit', Process.__onExit = (${code}) => { ... })`)
-          
-          try {
-            this._onExit(code)
-          /* c8 ignore next 3 */
-          } catch (error) {
-            console.error(error)
-          }
-    
-        })
-    
-      }
-  
-      if (handleKillSignal) {
-  
-        if (Is.windows()) {
-          throw new OptionNotSupportedProcessError('handleKillSignal')
-        } else {
-        
-          handleKillSignal.forEach((signal) => {
-            this.on(signal, this[`__on${signal}`] = () => {
-              // console.log(`Process.on('${signal}', Process.__on${signal} = () => { ... })`)
-            
-              try {
-                this._onSignal(signal)
-              /* c8 ignore next 3 */
-              } catch (error) {
-                console.error(error)
-              }
-      
-            })
-          })
-    
-        }
-    
-      }
-
-    } catch (error) {
-      this._detach({ handleExit, handleKillSignal })
-      throw error
-    }
-
-  }
-
-  static _onExit( /* code */ ) {
-    this.deletePidFile()
-  }
-
-  static _onSignal(signal) {
-
-    this.deletePidFile()
-
-    let count = this.listenerCount(signal)
-
-    /* c8 ignore next 5 */
-    if (count <= 0) {
-      this.exit()
-    } else {
-      console.log(`Process.listenerCount('${signal}') returned ${count}`)
-    }
-
-  }
-
-  static _detach({ handleExit, handleKillSignal }) {
-
-    if (handleKillSignal) {
-
-      handleKillSignal.forEach((signal) => {
-        if (this[`__on${signal}`]) {
-          this.off(signal, this[`__on${signal}`])
-          delete this[`__on${signal}`]
-        }
-      })
-  
-    }
+  static attachAllHandler({ handleExit }) {
 
     if (handleExit) {
 
-      if (this.__onExit) {
-        this.off('exit', this.__onExit)
-        delete this.__onExit
+      this.on('exit', this.onExitHandler = (code) => {
+        
+        try {
+          this.onExit(code)
+        } catch (error) {
+          console.error(error)
+        }
+  
+      })
+
+      // this.on('error', this.onErrorHandler = (error) => {
+
+      //   try {
+      //     this.onError(error)
+      //   } catch (error) {
+      //     console.error(error)
+      //   }
+
+      // })
+  
+    }
+
+  }
+
+  static detachAllHandler({ handleExit }) {
+
+    if (handleExit) {
+
+      // if (this.onErrorHandler) {
+      //   this.off('error', this.onErrorHandler)
+      //   delete this.onErrorHandler
+      // }
+
+      if (this.onExitHandler) {
+        this.off('exit', this.onExitHandler)
+        delete this.onExitHandler
       }
   
     }
 
   }
 
+  static onExit(/* code */) {
+    this.deletePidFile()
+  }
+
+  // static onError(/* error */) {}
+
   static deletePidFile() {
 
-    let path = this._pidPath
-    let option = this._pidOption
+    let path = this.pidPath
+    let option = this.pidOption
   
     if (this.existsPidFile(path)) {
-  
-      FileSystem.removeSync(path)
-  
-      this._detach(option)
 
-      delete Process._pidPath
-      delete Process._pidOption
+      this.detachAllHandler(option)
+
+      FileSystem.removeSync(path)
+
+      delete this.pidPath
+      delete this.pidOption
   
     }
     else {
-      throw new PidFileNotExistsProcessError(path)
+      throw new ProcessPidFileNotExistsError(path)
     }
   
   }
@@ -251,7 +203,7 @@ class Process {
     if (this.existsPidFile(path)) {
       this.kill(FileSystem.readFileSync(path, { 'encoding': 'utf-8' }), signal)
     } else {
-      throw new PidFileNotExistsProcessError(path)
+      throw new ProcessPidFileNotExistsError(path)
     }
   
   }
@@ -262,6 +214,6 @@ class Process {
   
 }
 
-Object.setPrototypeOf(Process, BaseProcess)
+Object.setPrototypeOf(Process, process)
 
 export { Process }

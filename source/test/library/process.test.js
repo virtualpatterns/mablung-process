@@ -2,14 +2,14 @@ import Test from 'ava'
 
 import { Process } from '../../index.js'
 
-Test('Process.wait(duration)', async (test) => {
+Test('wait(...)', async (test) => {
 
-  let duration = 1000
+  let begin = Process.hrtime.bigint()
+  await Process.wait(500)
+  let end = Process.hrtime.bigint()
+  let duration = parseInt((end - begin) / BigInt(1e6))
 
-  let before = new Date()
-  await Process.wait(duration)
-  let after = new Date()
-
-  test.assert(after - before >= duration)
+  test.log(`${duration}ms`)
+  test.assert(duration >= 500)
 
 })

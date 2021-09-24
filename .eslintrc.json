@@ -1,0 +1,3 @@
+{
+  "extends": "@virtualpatterns/eslint-config-mablung-makefile-environment"
+}

@@ -1,29 +1,5 @@
 {
   "author": "virtualpatterns.com <code@virtualpatterns.com> (http://www.virtualpatterns.com)",
-  "ava": {
-    "failFast": true,
-    "files": [
-      "release/**/test/**/*.test.*"
-    ],
-    "nodeArguments": [
-      "--no-warnings",
-      "--unhandled-rejections=strict"
-    ],
-    "require": [
-      "@virtualpatterns/mablung-source-map-support/install"
-    ],
-    "verbose": true
-  },
-  "c8": {
-    "all": true,
-    "exclude": [
-      "release/sandbox"
-    ],
-    "reporter": [
-      "html"
-    ],
-    "src": "release"
-  },
   "description": "TBD",
   "exports": {
     ".": "./release/index.js",
@@ -39,30 +15,20 @@
     "type": "git",
     "url": "https://github.com/virtualpatterns/mablung-process"
   },
-  "scripts": {
-    "test": "make test"
-  },
   "type": "module",
   "version": "0.0.2-28",
   "dependencies": {
     "@virtualpatterns/mablung-is": "0.0.1-40"
   },
   "devDependencies": {
-    "@babel/cli": "^7.15.4",
-    "@babel/core": "^7.15.5",
-    "@babel/eslint-parser": "^7.15.4",
-    "@babel/plugin-syntax-import-meta": "^7.10.4",
-    "@virtualpatterns/babel-plugin-mablung-replace-identifier": "0.0.26-6",
-    "@virtualpatterns/mablung-check-dependency": "0.0.26-16",
-    "@virtualpatterns/mablung-makefile": "0.0.26-90",
+    "@virtualpatterns/babel-preset-mablung-makefile-environment": "0.0.26-4",
+    "@virtualpatterns/eslint-config-mablung-makefile-environment": "0.0.26-4",
+    "@virtualpatterns/mablung-check-dependency": "0.0.26-19",
+    "@virtualpatterns/mablung-makefile-environment": "0.0.26-15",
     "@virtualpatterns/mablung-source-map-support": "0.0.26-20",
-    "@virtualpatterns/mablung-worker": "0.0.2-59",
+    "@virtualpatterns/mablung-worker": "0.0.2-71",
     "ava": "^3.15.0",
-    "c8": "^7.9.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-babel": "^5.3.1",
     "fs-extra": "^10.0.0",
-    "npm-check-updates": "^11.8.5",
-    "shx": "^0.3.3"
+    "sinon": "^11.1.2"
   }
 }

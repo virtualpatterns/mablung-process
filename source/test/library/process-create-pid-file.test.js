@@ -1,183 +1,234 @@
-import FileSystem from 'fs-extra'
+import { CreateLoggedProcess, WorkerClient } from '@virtualpatterns/mablung-worker'
 import { Is } from '@virtualpatterns/mablung-is'
+import FileSystem from 'fs-extra'
+import Path from 'path'
 import Test from 'ava'
-import { WorkerClient } from '@virtualpatterns/mablung-worker'
 
-import { Process, PidFileExistsProcessError } from '../../index.js'
+import { Process } from '../../index.js'
 
-const Require = __require
+const FilePath = __filePath
+const LogPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.log')
+const LoggedClient = CreateLoggedProcess(WorkerClient, LogPath)
+const PidPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.pid')
+const WorkerPath = FilePath.replace('process-', 'worker/process-').replace('.test', '')
 
-Test.before((test) => {
-  test.context.basePath = 'process/pid/create-pid-file'
+Test.before(async () => {
+  await FileSystem.ensureDir(Path.dirname(LogPath))
+  await FileSystem.remove(LogPath)
 })
 
-Test.serial('Process.createPidFile(path) when path exists and is valid', async (test) => {
-
-  let path = `${test.context.basePath}/exists-valid.pid`
-
-  await FileSystem.ensureDir(test.context.basePath)
-  await FileSystem.writeFile(path, process.pid.toString(), { 'encoding': 'utf-8' })
-
-  try {
-    test.throws(() => Process.createPidFile(path), { 'instanceOf': PidFileExistsProcessError })
-  } finally {
-    await FileSystem.remove(path)
-  }
-
+Test.beforeEach(() => {
+  return FileSystem.remove(PidPath)
 })
 
-Test.serial('Process.createPidFile(path) when path does not exist', async (test) => {
+Test.serial('createPidFile(\'...\') when \'...\' does not exist', async (test) => {
 
-  let path = `${test.context.basePath}/not-exists.pid`
+  let client = new LoggedClient(WorkerPath)
 
-  Process.createPidFile(path)
-
-  try {
-    test.true(await FileSystem.pathExists(path))
-    test.is(parseInt(await FileSystem.readFile(path, { 'encoding': 'utf-8' })), process.pid)
-  } finally {
-    Process.deletePidFile()
-  }
-
-})
-
-Test.serial('Process.createPidFile(path) when path exists and is invalid', async (test) => {
-
-  let path = `${test.context.basePath}/exists-invalid.pid`
-
-  await FileSystem.ensureDir(test.context.basePath)
-  await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
-
-  Process.createPidFile(path)
-
-  try {
-    test.true(await FileSystem.pathExists(path))
-    test.is(parseInt(await FileSystem.readFile(path, { 'encoding': 'utf-8' })), process.pid)
-  } finally {
-    Process.deletePidFile()
-  }
-
-})
-
-Test.serial('Process.createPidFile(path) when called twice', (test) => {
-
-  let path = `${test.context.basePath}/twice.pid`
-
-  Process.createPidFile(path)
-
-  try {
-    test.throws(() => Process.createPidFile(path), { 'instanceOf': PidFileExistsProcessError })
-  } finally {
-    Process.deletePidFile()
-  }
-
-})
-
-Test.serial('Process.createPidFile(path) when using a worker', async (test) => {
-
-  let path = `${test.context.basePath}/worker.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  await client.whenReady()
 
   try {
 
-    await worker.module.createPidFile(path)
+    await client.worker.createPidFile(PidPath)
 
     try {
-      test.true(await FileSystem.pathExists(path))
-      test.is(parseInt(await FileSystem.readFile(path, { 'encoding': 'utf-8' })), worker.pid)
+      test.true(await FileSystem.pathExists(PidPath))
+      test.is(parseInt(await FileSystem.readFile(PidPath, { 'encoding': 'utf-8' })), client.pid)
     } finally {
-      await worker.module.deletePidFile()
+      await client.worker.deletePidFile()
     }
 
   } finally {
-    await worker.exit()
+    await client.exit()
   }
 
 })
 
-Test.serial('Process.createPidFile(path) on exit', async (test) => {
+Test.serial('createPidFile(\'...\') when \'...\' exists and is valid', async (test) => {
 
-  let path = `${test.context.basePath}/on-exit.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  let client = new LoggedClient(WorkerPath)
+
+  await client.whenReady()
 
   try {
-    await worker.module.createPidFile(path, { 'handleExit': true, 'handleKillSignal': false })
-  } finally {
-    await worker.exit()
-  }
 
-  test.false(await FileSystem.pathExists(path))
+    await FileSystem.writeFile(PidPath, Process.pid.toString(), { 'encoding': 'utf-8' })
+
+    try {
+      await test.throwsAsync(client.worker.createPidFile(PidPath), { 'message': 'The pid file \'data/test/library/process-create-pid-file.pid\' exists.' })
+    } finally {
+      await FileSystem.remove(PidPath)
+    }
+
+  } finally {
+    await client.exit()
+  }
 
 })
 
-Test.serial('Process.createPidFile(path) on uncaught exception', async (test) => {
+Test.serial('createPidFile(\'...\') when \'...\' exists and is invalid', async (test) => {
 
-  let path = `${test.context.basePath}/on-uncaught-exception.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  let client = new LoggedClient(WorkerPath)
+
+  await client.whenReady()
 
   try {
-    await worker.module.createPidFile(path, { 'handleExit': true, 'handleKillSignal': false })
+
+    await FileSystem.writeFile(PidPath, '100000', { 'encoding': 'utf-8' })
+
+    await client.worker.createPidFile(PidPath)
+
+    try {
+      test.true(await FileSystem.pathExists(PidPath))
+      test.is(parseInt(await FileSystem.readFile(PidPath, { 'encoding': 'utf-8' })), client.pid)
+    } finally {
+      await client.worker.deletePidFile()
+    }
+
   } finally {
-    await worker.module.throwUncaughtException()
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await client.exit()
   }
-
-  test.false(await FileSystem.pathExists(path))
 
 })
 
-Test.serial('Process.createPidFile(path) on SIGINT optionally throws OptionNotSupportedProcessError', async (test) => {
+Test.serial('createPidFile(\'...\') when \'...\' exists and it is called again', async (test) => {
 
-  let path = `${test.context.basePath}/on-sigint.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  let client = new LoggedClient(WorkerPath)
 
-  if (Is.windows()) {
+  await client.whenReady()
 
-    try {
-      await test.throwsAsync(worker.module.createPidFile(path, { 'handleExit': true, 'handleKillSignal': [ 'SIGINT' ] }), { 'instanceOf': Error })
-    } finally {
-      await worker.exit()
-    }
-    
-  } else {
+  try {
+
+    await client.worker.createPidFile(PidPath)
 
     try {
-      await worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': [ 'SIGINT' ] })
+      await test.throwsAsync(client.worker.createPidFile(PidPath), { 'message': 'The pid file \'data/test/library/process-create-pid-file.pid\' exists.' })
     } finally {
-      Process.killPidFile(path, 'SIGINT')
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await client.worker.deletePidFile()
     }
 
+  } finally {
+    await client.exit()
   }
-
-  test.false(await FileSystem.pathExists(path))
 
 })
 
-Test.serial('Process.createPidFile(path) on SIGTERM optionally throws OptionNotSupportedProcessError', async (test) => {
+Test.serial('createPidFile(\'...\', { \'handleExit\': true })', async (test) => {
 
-  let path = `${test.context.basePath}/on-sigterm.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  let client = new LoggedClient(WorkerPath)
 
-  if (Is.windows()) {
+  await client.whenReady()
 
-    try {
-      await test.throwsAsync(worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': [ 'SIGTERM' ] }), { 'instanceOf': Error })
-    } finally {
-      await worker.exit()
-    }
-    
-  } else {
-
-    try {
-      await worker.module.createPidFile(path, { 'handleExit': false, 'handleKillSignal': [ 'SIGTERM' ] })
-    } finally {
-      Process.killPidFile(path, 'SIGTERM')
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-    }
-
+  try {
+    await client.worker.createPidFile(PidPath, { 'handleExit': true })
+  } finally {
+    await client.exit()
   }
 
-  test.false(await FileSystem.pathExists(path))
+  test.false(await FileSystem.pathExists(PidPath))
+
+})
+
+Test.serial('createPidFile(\'...\', { \'handleExit\': false })', async (test) => {
+
+  try {
+
+    let client = new LoggedClient(WorkerPath)
+
+    await client.whenReady()
+
+    try {
+      await client.worker.createPidFile(PidPath, { 'handleExit': false })
+    } finally {
+      await client.exit()
+    }
+
+    test.true(await FileSystem.pathExists(PidPath))
+
+  } finally {
+    await FileSystem.remove(PidPath)
+  }
+
+})
+
+Test.serial('createPidFile(\'...\', { \'handleExit\': true }) on uncaught exception', async (test) => {
+
+  let client = new LoggedClient(WorkerPath)
+
+  await client.whenReady()
+
+  try {
+    await client.worker.createPidFile(PidPath, { 'handleExit': true })
+  } finally {
+    await Promise.all([ client.whenExit(), client.worker.throwUncaughtException() ])
+  }
+
+  test.false(await FileSystem.pathExists(PidPath))
+
+})
+
+Test.serial('createPidFile(\'...\', { \'handleExit\': false }) on uncaught exception', async (test) => {
+
+  try {
+
+    let client = new LoggedClient(WorkerPath)
+
+    await client.whenReady()
+
+    try {
+      await client.worker.createPidFile(PidPath, { 'handleExit': false })
+    } finally {
+      await Promise.all([ client.whenExit(), client.worker.throwUncaughtException() ])
+    }
+
+    test.true(await FileSystem.pathExists(PidPath))
+
+  } finally {
+    await FileSystem.remove(PidPath)
+  }
+
+})
+
+;(Is.windows() ? Test.serial.skip : Test.serial)('createPidFile(\'...\', { \'handleExit\': true }) on SIGINT', async (test) => {
+
+  try {
+
+    let client = new LoggedClient(WorkerPath)
+
+    await client.whenReady()
+
+    try {
+      await client.worker.createPidFile(PidPath, { 'handleExit': true })
+    } finally {
+      await Promise.all([ client.whenKill(), client.send('SIGINT') ])
+    }
+
+    test.true(await FileSystem.pathExists(PidPath))
+
+  } finally {
+    await FileSystem.remove(PidPath)
+  }
+
+})
+
+;(Is.windows() ? Test.serial.skip : Test.serial)('createPidFile(\'...\', { \'handleExit\': false }) on SIGINT', async (test) => {
+
+  try {
+
+    let client = new LoggedClient(WorkerPath)
+
+    await client.whenReady()
+
+    try {
+      await client.worker.createPidFile(PidPath, { 'handleExit': false })
+    } finally {
+      await Promise.all([ client.whenKill(), client.send('SIGINT') ])
+    }
+
+    test.true(await FileSystem.pathExists(PidPath))
+
+  } finally {
+    await FileSystem.remove(PidPath)
+  }
 
 })

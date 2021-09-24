@@ -1,45 +1,56 @@
+import { CreateLoggedProcess, WorkerClient } from '@virtualpatterns/mablung-worker'
 import FileSystem from 'fs-extra'
+import Path from 'path'
 import Test from 'ava'
-import { WorkerClient } from '@virtualpatterns/mablung-worker'
-// import { LoggedClient } from '@virtualpatterns/mablung-worker/logged-client.js'
 
-import { Process, PidFileNotExistsProcessError } from '../../index.js'
+import { Process } from '../../index.js'
 
+import { ProcessPidFileNotExistsError } from '../../index.js'
+
+const FilePath = __filePath
+const LogPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.log')
+const LoggedClient = CreateLoggedProcess(WorkerClient, LogPath)
+const PidPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.pid')
 const Require = __require
+const WorkerPath = Require.resolve('./worker/process.js')
 
-Test.before((test) => {
-  test.context.basePath = 'process/pid/kill-pid-file'
+Test.before(async () => {
+  await FileSystem.ensureDir(Path.dirname(LogPath))
+  await FileSystem.remove(LogPath)
 })
 
-Test('Process.killPidFile(path) when path exists and is valid', async (test) => {
+Test.beforeEach(() => {
+  return FileSystem.remove(PidPath)
+})
 
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
-  let path = `${test.context.basePath}/exists-valid.pid`
+Test.serial('killPidFile(\'...\') when \'...\' does not exist', (test) => {
+  test.throws(() => { Process.killPidFile(PidPath) }, { 'instanceOf': ProcessPidFileNotExistsError })
+})
 
-  await worker.module.createPidFile(path)
+Test.serial('killPidFile(\'...\') when \'...\' exists and is valid', async (test) => {
 
-  Process.killPidFile(path)
+  try {
 
-  let maximumDuration = 2000
-  let pollInterval = maximumDuration / 8
+    let client = new LoggedClient(WorkerPath)
 
-  await test.notThrowsAsync(Process.when(maximumDuration, pollInterval, () => !Process.existsPidFile(path)))
+    await client.whenReady()
+    await client.worker.createPidFile(PidPath)
+    await test.notThrowsAsync(Promise.all([ client.whenKill(), Process.killPidFile(PidPath) ]))
+
+  } finally {
+    await FileSystem.remove(PidPath)
+  }
 
 })
 
-Test('Process.killPidFile(path) when path does not exist', (test) => {
-  let path = `${test.context.basePath}/not-exists.pid`
-  return test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': PidFileNotExistsProcessError })
-})
+Test.serial('killPidFile(\'...\') when \'...\' exists and is invalid', async (test) => {
 
-Test('Process.killPidFile(path) when path exists and is invalid', async (test) => {
+  await FileSystem.writeFile(PidPath, '100000', { 'encoding': 'utf-8' })
 
-  let path = `${test.context.basePath}/exists-invalid.pid`
-  
-  await FileSystem.ensureDir(test.context.basePath)
-  await FileSystem.writeFile(path, '100000', { 'encoding': 'utf-8' })
-
-  await test.throws(Process.killPidFile.bind(Process, path), { 'instanceOf': PidFileNotExistsProcessError })
-  test.false(Process.existsPidFile(path))
+  try {
+    test.throws(() => { Process.killPidFile(PidPath) }, { 'instanceOf': ProcessPidFileNotExistsError })
+  } finally {
+    await FileSystem.remove(PidPath)
+  }
 
 })

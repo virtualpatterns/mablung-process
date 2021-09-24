@@ -1,8 +1,5 @@
 import { Check } from '@virtualpatterns/mablung-check-dependency'
-import { Is } from '@virtualpatterns/mablung-is'
 import Test from 'ava'
-
-const Process = process
 
 Test('default', async (test) => {
 

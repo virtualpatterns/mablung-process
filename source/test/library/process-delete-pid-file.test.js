@@ -1,67 +1,82 @@
+import { CreateLoggedProcess, WorkerClient } from '@virtualpatterns/mablung-worker'
 import FileSystem from 'fs-extra'
+import Path from 'path'
 import Test from 'ava'
-import { WorkerClient } from '@virtualpatterns/mablung-worker'
 
-import { Process, PidFileNotExistsProcessError } from '../../index.js'
-
+const FilePath = __filePath
+const LogPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.log')
+const LoggedClient = CreateLoggedProcess(WorkerClient, LogPath)
+const PidPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.pid')
 const Require = __require
+const WorkerPath = Require.resolve('./worker/process.js')
 
-Test.before((test) => {
-  test.context.basePath = 'process/pid/delete-pid-file'
+Test.before(async () => {
+  await FileSystem.ensureDir(Path.dirname(LogPath))
+  await FileSystem.remove(LogPath)
 })
 
-Test.serial('Process.deletePidFile() when called after Process.createPidFile(path)', async (test) => {
-
-  let path = `${test.context.basePath}/after.pid`
-
-  Process.createPidFile(path)
-  Process.deletePidFile()
-
-  test.false(await FileSystem.pathExists(path))
-
+Test.beforeEach(() => {
+  return FileSystem.remove(PidPath)
 })
 
-Test.serial('Process.deletePidFile() when called before another createPidFile', async (test) => {
+Test.serial('deletePidFile() when called after createPidFile(\'...\')', async (test) => {
 
-  let path = `${test.context.basePath}/before.pid`
+  let client = new LoggedClient(WorkerPath)
 
-  Process.createPidFile(path)
-  Process.deletePidFile()
-  Process.createPidFile(path)
+  await client.whenReady()
 
   try {
-    test.true(await FileSystem.pathExists(path))
+
+    await client.worker.createPidFile(PidPath)
+    await client.worker.deletePidFile()
+
+    test.false(await FileSystem.pathExists(PidPath))
+
   } finally {
-    Process.deletePidFile()
+    await client.exit()
   }
 
 })
 
-Test.serial('Process.deletePidFile() when called twice', (test) => {
+Test.serial('deletePidFile() when called before another createPidFile(\'...\')', async (test) => {
 
-  let path = `${test.context.basePath}/twice.pid`
+  let client = new LoggedClient(WorkerPath)
 
-  Process.createPidFile(path)
-  Process.deletePidFile()
-
-  test.throws(() => Process.deletePidFile(), { 'instanceOf': PidFileNotExistsProcessError })
-
-})
-
-Test.serial('Process.deletePidFile() when using a worker', async (test) => {
-
-  let path = `${test.context.basePath}/worker.pid`
-  let worker = new WorkerClient(Require.resolve('./worker.js'))
+  await client.whenReady()
 
   try {
 
-    await worker.module.createPidFile(path)
-    await worker.module.deletePidFile()
+    await client.worker.createPidFile(PidPath)
+    await client.worker.deletePidFile()
+    await client.worker.createPidFile(PidPath)
 
-    test.false(await FileSystem.pathExists(path))
-  
+    test.true(await FileSystem.pathExists(PidPath))
+
+    await client.worker.deletePidFile()
+
+    test.false(await FileSystem.pathExists(PidPath))
+
   } finally {
-    await worker.exit()
+    await client.exit()
+  }
+
+})
+
+Test.serial('deletePidFile() when called after another deletePidFile()', async (test) => {
+
+  let client = new LoggedClient(WorkerPath)
+
+  await client.whenReady()
+
+  try {
+
+    await client.worker.createPidFile(PidPath)
+    await client.worker.deletePidFile()
+
+    await test.throwsAsync(client.worker.deletePidFile(), { 'message': 'A pid file does not exist.' })
+
+  } finally {
+    await client.exit()
   }
 
 })
