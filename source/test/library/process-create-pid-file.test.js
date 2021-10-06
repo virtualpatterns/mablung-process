@@ -9,8 +9,9 @@ import { Process } from '../../index.js'
 const FilePath = __filePath
 const LogPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.log')
 const LoggedClient = CreateLoggedProcess(WorkerClient, LogPath)
-const PidPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.pid')
 const WorkerPath = FilePath.replace('process-', 'worker/process-').replace('.test', '')
+
+const PidPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.pid')
 
 Test.before(async () => {
   await FileSystem.ensureDir(Path.dirname(LogPath))

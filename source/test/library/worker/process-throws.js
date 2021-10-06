@@ -1,5 +1,4 @@
 import '@virtualpatterns/mablung-source-map-support/install'
-
 import { WorkerServer } from '@virtualpatterns/mablung-worker'
 import Sinon from 'sinon'
 
@@ -9,14 +8,14 @@ class Worker extends Process {
 
   static createPidFileThrowsError(...argument) {
 
-    let attachAllHandlerStub = Sinon
-      .stub(this, 'attachAllHandler')
+    let attachStub = Sinon
+      .stub(this, 'attach')
       .throws(new Error('createPidFileThrowsError'))
 
     try {
       return super.createPidFile(...argument)
     } finally {
-      attachAllHandlerStub.restore()
+      attachStub.restore()
     }
 
   }

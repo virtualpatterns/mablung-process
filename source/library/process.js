@@ -111,7 +111,7 @@ class Process {
 
       try {
 
-        this.attachAllHandler({ handleExit })
+        this.attach({ handleExit })
     
         this.pidPath = path
         this.pidOption = { handleExit }
@@ -125,7 +125,7 @@ class Process {
   
   }
 
-  static attachAllHandler({ handleExit }) {
+  static attach({ handleExit }) {
 
     if (handleExit) {
 
@@ -138,34 +138,6 @@ class Process {
         }
   
       })
-
-      // this.on('error', this.onErrorHandler = (error) => {
-
-      //   try {
-      //     this.onError(error)
-      //   } catch (error) {
-      //     console.error(error)
-      //   }
-
-      // })
-  
-    }
-
-  }
-
-  static detachAllHandler({ handleExit }) {
-
-    if (handleExit) {
-
-      // if (this.onErrorHandler) {
-      //   this.off('error', this.onErrorHandler)
-      //   delete this.onErrorHandler
-      // }
-
-      if (this.onExitHandler) {
-        this.off('exit', this.onExitHandler)
-        delete this.onExitHandler
-      }
   
     }
 
@@ -175,8 +147,6 @@ class Process {
     this.deletePidFile()
   }
 
-  // static onError(/* error */) {}
-
   static deletePidFile() {
 
     let path = this.pidPath
@@ -184,7 +154,7 @@ class Process {
   
     if (this.existsPidFile(path)) {
 
-      this.detachAllHandler(option)
+      this.detach(option)
 
       FileSystem.removeSync(path)
 
@@ -196,6 +166,15 @@ class Process {
       throw new ProcessPidFileNotExistsError(path)
     }
   
+  }
+
+  static detach({ handleExit }) {
+
+    if (handleExit && this.onExitHandler) {
+      this.off('exit', this.onExitHandler)
+      delete this.onExitHandler
+    }
+
   }
 
   static signalPidFile(path, signal) {
@@ -211,7 +190,7 @@ class Process {
   static killPidFile(path, killSignal = 'SIGINT') {
     return this.signalPidFile(path, killSignal)
   }
-  
+
 }
 
 Object.setPrototypeOf(Process, process)
