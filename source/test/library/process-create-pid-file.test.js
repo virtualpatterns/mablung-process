@@ -201,7 +201,8 @@ Test.serial('createPidFile(\'...\', { \'handleExit\': false }) on uncaught excep
     try {
       await client.worker.createPidFile(PidPath, { 'handleExit': true })
     } finally {
-      await Promise.all([ client.whenKill(), client.send('SIGINT') ])
+      // await Promise.all([ client.whenKill(), client.send('SIGINT') ])
+      await client.kill()
     }
 
     test.true(await FileSystem.pathExists(PidPath))
@@ -223,7 +224,8 @@ Test.serial('createPidFile(\'...\', { \'handleExit\': false }) on uncaught excep
     try {
       await client.worker.createPidFile(PidPath, { 'handleExit': false })
     } finally {
-      await Promise.all([ client.whenKill(), client.send('SIGINT') ])
+      // await Promise.all([ client.whenKill(), client.send('SIGINT') ])
+      await client.kill()
     }
 
     test.true(await FileSystem.pathExists(PidPath))
