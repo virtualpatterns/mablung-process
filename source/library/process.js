@@ -129,7 +129,8 @@ class Process {
 
     if (handleExit) {
 
-      this.on('exit', this.onExitHandler = (code) => {
+      this.once('exit', this.onExitHandler = (code) => {
+        delete this.onExitHandler
         
         try {
           this.onExit(code)
