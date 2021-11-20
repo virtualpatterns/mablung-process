@@ -5,7 +5,6 @@
       {
         "header": {
           "exclude": [
-            "source/header",
             "source/test"
           ]
         }

@@ -1,8 +1,5 @@
+import { Process, ProcessDurationExceededError } from '@virtualpatterns/mablung-process'
 import Test from 'ava'
-
-import { Process } from '../../index.js'
-
-import { ProcessDurationExceededError } from '../../index.js'
 
 const MaximumDuration = 1000
 const PollInterval = parseInt(Math.ceil(MaximumDuration / 4.00))

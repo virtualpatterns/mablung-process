@@ -1,17 +1,17 @@
-import { CreateLoggedProcess, WorkerClient } from '@virtualpatterns/mablung-worker'
+import { CreateLoggedProcess } from '@virtualpatterns/mablung-worker/test'
 import { Is } from '@virtualpatterns/mablung-is'
+import { Process } from '@virtualpatterns/mablung-process'
+import { WorkerClient } from '@virtualpatterns/mablung-worker'
 import FileSystem from 'fs-extra'
 import Path from 'path'
 import Test from 'ava'
 
-import { Process } from '../../index.js'
-
 const FilePath = __filePath
+
 const LogPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.log')
 const LoggedClient = CreateLoggedProcess(WorkerClient, LogPath)
-const WorkerPath = FilePath.replace('process-', 'worker/process-').replace('.test', '')
-
 const PidPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.pid')
+const WorkerPath = FilePath.replace('process-', 'worker/process-').replace('.test', '')
 
 Test.before(async () => {
   await FileSystem.ensureDir(Path.dirname(LogPath))

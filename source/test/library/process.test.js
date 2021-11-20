@@ -1,6 +1,5 @@
+import { Process } from '@virtualpatterns/mablung-process'
 import Test from 'ava'
-
-import { Process } from '../../index.js'
 
 Test('wait(...)', async (test) => {
 

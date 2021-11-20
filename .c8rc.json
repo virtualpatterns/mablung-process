@@ -1,7 +1,6 @@
 {
   "all": true,
   "exclude": [
-    "release/header",
     "release/sandbox",
     "ava.config.cjs"
   ],
