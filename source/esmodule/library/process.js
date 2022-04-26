@@ -1,5 +1,5 @@
+import { Path } from '@virtualpatterns/mablung-path'
 import FileSystem from 'fs-extra'
-import Path from 'path'
 
 import { ProcessDurationExceededError } from './error/process-duration-exceeded-error.js'
 import { ProcessPidFileExistsError } from './error/process-pid-file-exists-error.js'
@@ -98,11 +98,9 @@ class Process {
   
   }
   
-  static createPidFile(path, { handleExit = true } = {}) {
+  static createPidFile(path, handleExit = true) {
 
-    if (this.pidPath) {
-      throw new ProcessPidFileExistsError(this.pidPath)
-    } else if (this.existsPidFile(path)) {
+    if (this.existsPidFile(path)) {
       throw new ProcessPidFileExistsError(path)
     } else {
   
@@ -111,11 +109,20 @@ class Process {
 
       try {
 
-        this.attach({ handleExit })
+        if (handleExit) {
+
+          this.once('exit', () => {
+            
+            try {
+              this.deletePidFile(path)
+            } catch (error) {
+              console.error(error)
+            }
+      
+          })
+      
+        }
     
-        this.pidPath = path
-        this.pidOption = { handleExit }
-  
       } catch (error) {
         FileSystem.removeSync(path)
         throw error
@@ -125,57 +132,15 @@ class Process {
   
   }
 
-  static attach({ handleExit }) {
-
-    if (handleExit) {
-
-      this.once('exit', this.onExitHandler = (code) => {
-        delete this.onExitHandler
-        
-        try {
-          this.onExit(code)
-        } catch (error) {
-          console.error(error)
-        }
-  
-      })
-  
-    }
-
-  }
-
-  static onExit(/* code */) {
-    this.deletePidFile()
-  }
-
-  static deletePidFile() {
-
-    let path = this.pidPath
-    let option = this.pidOption
+  static deletePidFile(path) {
   
     if (this.existsPidFile(path)) {
-
-      this.detach(option)
-
       FileSystem.removeSync(path)
-
-      delete this.pidPath
-      delete this.pidOption
-  
     }
     else {
       throw new ProcessPidFileNotExistsError(path)
     }
   
-  }
-
-  static detach({ handleExit }) {
-
-    if (handleExit && this.onExitHandler) {
-      this.off('exit', this.onExitHandler)
-      delete this.onExitHandler
-    }
-
   }
 
   static signalPidFile(path, signal) {

@@ -1,11 +1,11 @@
-import Path from 'path'
+import { Path } from '@virtualpatterns/mablung-path'
 
 import { ProcessError } from './process-error.js'
 
 class ProcessPidFileNotExistsError extends ProcessError {
 
   constructor(path) {
-    super(path ? `The pid file '${Path.relative('', path)}' does not exist.` : 'A pid file does not exist.')
+    super(`The pid file '${Path.trim(path)}' does not exist.`)
   }
 
 }

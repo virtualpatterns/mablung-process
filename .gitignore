@@ -1,6 +1,5 @@
+.DS_Store
 /archive
-/coverage
 /data
 /node_modules
 /release
-.DS_Store

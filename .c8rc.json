@@ -1,13 +1,14 @@
 {
   "all": true,
   "exclude": [
-    "release/sandbox",
-    "ava.config.cjs"
+    "ava.config.js",
+    "release/sandbox"
   ],
+  "reportDir": "data/c8", 
   "reporter": [
     "html",
     "text-summary"
   ],
   "src": "release",
-  "tempDirectory": "data/coverage"
+  "tempDirectory": "data/cache/c8"
 }

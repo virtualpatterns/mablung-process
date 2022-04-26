@@ -1,14 +1,5 @@
 {
   "presets": [
-    [
-      "@virtualpatterns/babel-preset-mablung-makefile-environment",
-      {
-        "header": {
-          "exclude": [
-            "source/test"
-          ]
-        }
-      }
-    ]
+    "@virtualpatterns/babel-preset-mablung-makefile-environment"
   ]
 }
