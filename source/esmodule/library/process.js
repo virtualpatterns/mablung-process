@@ -13,7 +13,7 @@ class Process {
     })
   }
 
-  static when(maximumDuration, pollInterval, pollFn) {
+  static when(pollFn, pollInterval = 1000, maximumDuration = 5000) {
 
     return new Promise((resolve, reject) => {
   
