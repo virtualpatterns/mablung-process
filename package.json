@@ -9,8 +9,10 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "release/library",
-    "release/index.*"
+    "release/commonjs/library",
+    "release/commonjs/index.*",
+    "release/esmodule/library",
+    "release/esmodule/index.*"
   ],
   "license": "GPL-3.0+",
   "name": "@virtualpatterns/mablung-process",
