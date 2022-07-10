@@ -1,5 +1,5 @@
 export default {
-  'concurrency': 2,
+  'concurrency': 1,
   'failFast': true,
   'files': [
     'release/**/test/**/*.test.*'
