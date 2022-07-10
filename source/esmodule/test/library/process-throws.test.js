@@ -9,9 +9,8 @@ const FolderPath = Path.dirname(FilePath)
 const DataPath = FilePath.replace('/release/', '/data/').replace(/\.test\.c?js/, '')
 const WorkerPath = Path.resolve(FolderPath, './worker/process-throws.js')
 
-Test.before(async () => {
-  await FileSystem.remove(DataPath)
-  return FileSystem.ensureDir(DataPath)
+Test.before(() => {
+  return FileSystem.emptyDir(DataPath)
 })
 
 Test.beforeEach(async (test) => {
